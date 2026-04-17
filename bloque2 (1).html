@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloque 2 — Comportamiento del Cliente · Sistema Financiero Argentino</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f2f5f9;--surface:#fff;--surface2:#f7f9fc;--border:#dde3ec;
+  --navy:#0f2744;--blue:#1a56a0;--blue-lt:#e8f0fb;
+  --red:#c0392b;--red-lt:#fdf0ee;
+  --orange:#d35400;--orange-lt:#fef3ec;
+  --green:#1a7a4a;--green-lt:#eaf5ef;
+  --yellow:#b7770d;--yellow-lt:#fef9ec;
+  --text:#1a2535;--text-mid:#4a5568;--text-muted:#8a9bb0;
+  --font:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;}
+.nav{background:#08192e;padding:0 56px;display:flex;align-items:center;gap:4px;border-bottom:1px solid #1a2d47;}
+.nav-btn{padding:14px 20px;font-size:12px;font-weight:600;color:#5a7c99;border:none;background:transparent;cursor:pointer;font-family:var(--font);border-bottom:3px solid transparent;transition:all .15s;text-decoration:none;display:inline-block;}
+.nav-btn:hover{color:#fff;} .nav-btn.active{color:#fff;border-bottom-color:var(--blue);}
+.nav-sep{color:#1a2d47;padding:0 4px;font-size:18px;}
+.header{background:var(--navy);padding:36px 56px 32px;position:relative;overflow:hidden;}
+.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1a56a0,#2e86de,#54a0ff);}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#7fb3e8;margin-bottom:10px;}
+.header h1{font-size:26px;font-weight:700;color:#fff;line-height:1.25;margin-bottom:7px;}
+.header-sub{font-size:12px;color:#8aaccc;}
+.header-meta{position:absolute;top:36px;right:56px;text-align:right;}
+.period{font-size:20px;font-weight:700;color:#fff;font-family:var(--mono);}
+.period-label{font-size:10px;color:#7fb3e8;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+.source{font-size:11px;color:#5a7c99;margin-top:5px;}
+.container{max-width:1380px;margin:0 auto;padding:32px 56px 72px;}
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:32px;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--border);border-radius:10px;padding:18px 16px 16px;transition:box-shadow .2s;}
+.kpi:hover{box-shadow:0 4px 14px rgba(0,0,0,.07);}
+.kpi.bl{border-top-color:var(--blue);} .kpi.re{border-top-color:var(--red);}
+.kpi.or{border-top-color:var(--orange);} .kpi.gr{border-top-color:var(--green);}
+.kpi.ye{border-top-color:var(--yellow);}
+.kpi-lbl{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:7px;}
+.kpi-val{font-size:24px;font-weight:700;color:var(--text);font-family:var(--mono);line-height:1;}
+.kpi-sub{font-size:11px;color:var(--text-muted);margin-top:5px;}
+.kpi-delta{font-size:11px;font-weight:600;margin-top:3px;}
+.up{color:var(--red);} .dn{color:var(--green);}
+.sec-hdr{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:11px;border-bottom:2px solid var(--border);}
+.sec-num{width:26px;height:26px;background:var(--blue);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.sec-title{font-size:15px;font-weight:700;color:var(--navy);}
+.sec-sub{font-size:11px;color:var(--text-muted);margin-left:auto;}
+.section{margin-bottom:40px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px;}
+.card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.card-sub{font-size:11px;color:var(--text-muted);margin-bottom:16px;font-family:var(--mono);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.mt{margin-top:14px;}
+.cw{position:relative;}
+.h260{height:260px;} .h300{height:300px;} .h340{height:340px;} .h400{height:400px;}
+.ctrl-bar{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 20px;margin-bottom:20px;flex-wrap:wrap;}
+.ctrl-label{font-size:12px;font-weight:700;color:var(--navy);white-space:nowrap;}
+.ctrl-sep{width:1px;height:24px;background:var(--border);flex-shrink:0;}
+.toggle-btns{display:flex;gap:2px;background:var(--surface2);padding:3px;border-radius:7px;border:1px solid var(--border);}
+.toggle-btn{padding:6px 14px;font-size:12px;font-weight:600;border:none;border-radius:5px;cursor:pointer;background:transparent;color:var(--text-muted);transition:all .15s;font-family:var(--font);}
+.toggle-btn.active{background:var(--navy);color:#fff;}
+.seg-select{padding:7px 32px 7px 12px;font-size:12px;font-family:var(--font);font-weight:500;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:7px;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238a9bb0' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;min-width:220px;}
+.seg-select:focus{border-color:var(--blue);}
+.ctrl-note{font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-left:auto;}
+.seg-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.seg-kpi{background:var(--blue-lt);border:1px solid #c5d9f5;border-radius:8px;padding:12px 16px;}
+.seg-kpi-val{font-size:20px;font-weight:700;font-family:var(--mono);color:var(--navy);}
+.seg-kpi-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px;}
+.highlight-box{background:linear-gradient(135deg,#e8f0fb,#f2f5f9);border:1px solid #c5d9f5;border-left:4px solid var(--blue);border-radius:10px;padding:20px 24px;margin-bottom:20px;}
+.highlight-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+.highlight-text{font-size:13px;color:var(--text-mid);line-height:1.6;}
+.highlight-text strong{color:var(--navy);}
+table{width:100%;border-collapse:collapse;}
+thead th{background:var(--surface2);color:var(--text-muted);font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);white-space:nowrap;font-family:var(--mono);}
+thead th.r{text-align:right;}
+tbody tr{border-bottom:1px solid var(--border);transition:background .12s;}
+tbody tr:hover{background:var(--surface2);}
+tbody td{padding:9px 13px;font-size:12px;color:var(--text);}
+tbody td.r{text-align:right;font-family:var(--mono);font-size:12px;}
+tbody tr:last-child{border-bottom:none;}
+.mora-wrap{display:flex;align-items:center;gap:7px;justify-content:flex-end;}
+.mora-bar-bg{width:60px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;flex-shrink:0;}
+.mora-bar-fill{height:100%;border-radius:3px;}
+.findings{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.finding{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:8px;padding:16px;}
+.finding.wa{border-left-color:var(--orange);} .finding.al{border-left-color:var(--red);} .finding.ok{border-left-color:var(--green);}
+.f-icon{font-size:17px;margin-bottom:7px;} .f-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:5px;}
+.f-text{font-size:12px;color:var(--text-mid);line-height:1.6;} .f-text strong{color:var(--text);}
+.coming-soon{background:var(--surface2);border:1px dashed var(--border);border-radius:10px;padding:40px;text-align:center;color:var(--text-muted);}
+.cs-icon{font-size:32px;margin-bottom:12px;} .cs-text{font-size:13px;font-weight:600;color:var(--text-mid);} .cs-sub{font-size:12px;margin-top:4px;}
+.main-tabs{display:flex;gap:0;margin-bottom:24px;border-bottom:2px solid var(--border);overflow-x:auto;}
+.main-tab{padding:10px 20px;font-size:13px;font-weight:600;border:none;background:transparent;color:var(--text-muted);cursor:pointer;font-family:var(--font);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap;}
+.main-tab.active{color:var(--navy);border-bottom-color:var(--blue);}
+.main-tbc{display:none;} .main-tbc.active{display:block;}
+/* tabs secundarios para tipo de mora */
+.tabs2{display:flex;gap:2px;margin-bottom:16px;background:var(--surface2);padding:3px;border-radius:7px;width:fit-content;border:1px solid var(--border);}
+.tab2{padding:5px 14px;font-size:11px;font-weight:600;border:none;border-radius:5px;cursor:pointer;background:transparent;color:var(--text-muted);transition:all .15s;font-family:var(--font);}
+.tab2.active{background:var(--surface);color:var(--navy);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="bloque1_completo.html" class="nav-btn">Bloque 1 — Fotografía del Sistema</a>
+  <span class="nav-sep">›</span>
+  <a href="bloque2.html" class="nav-btn active">Bloque 2 — Comportamiento del Cliente</a>
+</nav>
+
+<div class="header">
+  <div class="eyebrow">Bloque 2 — Comportamiento del Cliente en el Sistema</div>
+  <h1>Análisis de Comportamiento Crediticio<br>Sistema Financiero Argentino</h1>
+  <div class="header-sub">Universo: 575.660 empresas y responsables inscriptos · feb-2024 → feb-2026 · Fuente: CENDEU / BCRA · Duplicados consolidados</div>
+  <div class="header-meta">
+    <div class="period-label">Período analizado</div>
+    <div class="period">FEB 2024 – FEB 2026</div>
+    <div class="source">575K clientes · segmento fijado en feb-24</div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="kpi-strip">
+    <div class="kpi bl"><div class="kpi-lbl">Clientes Únicos</div><div class="kpi-val">575K</div><div class="kpi-sub">empresas + RI en el sistema</div></div>
+    <div class="kpi or"><div class="kpi-lbl">Opera con 1 banco</div><div class="kpi-val">42.5%</div><div class="kpi-sub">244.779 clientes</div></div>
+    <div class="kpi re"><div class="kpi-lbl">Mora clientes · 1 banco</div><div class="kpi-val">14.74%</div><div class="kpi-sub">tasa por cabeza · base</div></div>
+    <div class="kpi re"><div class="kpi-lbl">Mora clientes · 9+ bancos</div><div class="kpi-val">69.27%</div><div class="kpi-sub">↑ 4.7x vs 1 banco</div><div class="kpi-delta up">mora importe: 14.11%</div></div>
+    <div class="kpi gr"><div class="kpi-lbl">Brecha clientes vs importe</div><div class="kpi-val">~5x</div><div class="kpi-sub">mora clientes >> mora importe</div></div>
+  </div>
+
+  <div class="main-tabs">
+    <button class="main-tab active" onclick="mainSw('bancos',this)">1. Distribución por Bancos</button>
+    <button class="main-tab" onclick="mainSw('proba',this)">2. Probabilidad de Mora</button>
+    <button class="main-tab" onclick="mainSw('contagio',this)">3. Contagio entre Bancos</button>
+    <button class="main-tab" onclick="mainSw('default',this)">4. ¿Con quién defaultea primero?</button>
+    <button class="main-tab" onclick="mainSw('sit2',this)">5. Sit 2 en múltiples bancos</button>
+    <button class="main-tab" onclick="mainSw('segmento',this)">6. Segmentación por Deuda</button>
+    <button class="main-tab" onclick="mainSw('modelo',this)">7. Modelo Logístico</button>
+  </div>
+
+  <!-- TAB 1 -->
+  <div class="main-tbc active" id="main-bancos">
+
+    <div class="highlight-box">
+      <div class="highlight-title">🔑 Hallazgo principal — dos tasas, dos historias</div>
+      <div class="highlight-text">
+        La <strong>tasa de mora por clientes</strong> sube de 14.74% (1 banco) a 69.27% (9+ bancos) — relación lineal de ~8pp por banco adicional.<br>
+        La <strong>tasa de mora por importe</strong> es mucho más baja (2.70% a 14.11%) porque los clientes que operan con muchos bancos tienen deudas grandes y solo una fracción está en mora.<br>
+        Conclusión: <strong>operar con muchos bancos es señal de riesgo de cabeza, pero no necesariamente de volumen</strong> — los grandes deudores administran mejor sus obligaciones.
+      </div>
+    </div>
+
+    <!-- CONTROLES -->
+    <div class="ctrl-bar">
+      <div class="ctrl-label">Criterio:</div>
+      <div class="toggle-btns">
+        <button class="toggle-btn active" onclick="setCriterio('v6',this)">≥ 6 períodos</button>
+        <button class="toggle-btn" onclick="setCriterio('v2',this)">≥ 2 períodos</button>
+      </div>
+      <div class="ctrl-sep"></div>
+      <div class="ctrl-label">Segmento:</div>
+      <select class="seg-select" id="segSelect" onchange="setSegmento(this.value)">
+        <option value="total">Todos los segmentos</option>
+        <option value="1. Micro (< $1M)">Micro — deuda &lt; $1M</option>
+        <option value="2. Pequeño ($1M-$10M)">Pequeño — $1M a $10M</option>
+        <option value="3. Mediano ($10M-$100M)">Mediano — $10M a $100M</option>
+        <option value="4. Grande ($100M-$1B)">Grande — $100M a $1B</option>
+        <option value="5. Corporativo (> $1B)">Corporativo — &gt; $1B</option>
+      </select>
+      <div class="ctrl-note" id="ctrlNote">575.660 clientes · todos los segmentos</div>
+    </div>
+
+    <!-- KPIs segmento -->
+    <div class="seg-kpis" id="segKpis" style="display:none">
+      <div class="seg-kpi"><div class="seg-kpi-val" id="sk-cli">—</div><div class="seg-kpi-lbl">Clientes en segmento</div></div>
+      <div class="seg-kpi"><div class="seg-kpi-val" id="sk-mor">—</div><div class="seg-kpi-lbl">Morosos</div></div>
+      <div class="seg-kpi"><div class="seg-kpi-val" id="sk-tmc">—</div><div class="seg-kpi-lbl">Mora por clientes</div></div>
+      <div class="seg-kpi"><div class="seg-kpi-val" id="sk-tmi">—</div><div class="seg-kpi-lbl">Mora por importe</div></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-hdr">
+        <div class="sec-num">1</div>
+        <div class="sec-title">Distribución y Mora por Cantidad de Bancos</div>
+        <div class="sec-sub" id="secSub">Todos los segmentos · ≥6 períodos</div>
+      </div>
+
+      <!-- Tabs tipo de mora -->
+      <div class="tabs2">
+        <button class="tab2 active" onclick="setTipoMora('cli',this)">Mora por Clientes (%)</button>
+        <button class="tab2" onclick="setTipoMora('imp',this)">Mora por Importe (%)</button>
+        <button class="tab2" onclick="setTipoMora('ambas',this)">Comparar ambas</button>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title" id="combinadoTitle">Distribución de Clientes + Mora por Clientes</div>
+        <div class="card-sub">Barras azules = clientes (eje izq.) · Línea = tasa de mora % (eje der.)</div>
+        <div class="cw h340"><canvas id="cCombinado"></canvas></div>
+      </div>
+
+      <div class="g2" style="margin-bottom:14px">
+        <div class="card">
+          <div class="card-title">Distribución de Clientes (%)</div>
+          <div class="card-sub">% del universo en cada categoría de bancos</div>
+          <div class="cw h260"><canvas id="cDist"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title" id="moraChartTitle">Tasa de Mora por Clientes (%)</div>
+          <div class="card-sub" id="moraChartSub">% de clientes con situación ≥ 2 en algún momento del período</div>
+          <div class="cw h260"><canvas id="cMora"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Gráfico comparativo (solo visible en modo "ambas") -->
+      <div class="card mt" id="cardAmbas" style="display:none;margin-bottom:14px">
+        <div class="card-title">Comparación: Mora por Clientes vs. Mora por Importe (%)</div>
+        <div class="card-sub">Ambas tasas en el mismo gráfico · la brecha muestra que los clientes grandes defaultean menos en proporción</div>
+        <div class="cw h300"><canvas id="cAmbas"></canvas></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Tabla Detallada</div>
+        <div class="card-sub" id="tabSub">Todos los segmentos · ≥6 períodos · segmento fijado en feb-2024</div>
+        <div style="overflow-x:auto;margin-top:8px"><table id="tDist"></table></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="findings">
+        <div class="finding al"><div class="f-icon">📈</div><div class="f-title">Mora por clientes: lineal y pronunciada</div><div class="f-text">Sube ~8pp por banco adicional: de <strong>14.74%</strong> con 1 banco a <strong>69.27%</strong> con 9+. Relación consistente en todos los segmentos.</div></div>
+        <div class="finding ok"><div class="f-icon">💡</div><div class="f-title">Mora por importe: mucho más baja</div><div class="f-text">Con 1 banco: solo <strong>2.70%</strong> en importe vs. 14.74% en clientes. Los clientes que defaultean tienen deudas pequeñas — <strong>la mora en pesos es manejable</strong> en los primeros tramos.</div></div>
+        <div class="finding al"><div class="f-icon">⚠️</div><div class="f-title">9+ bancos: importe también sube</div><div class="f-text">Con 9+ bancos la mora por importe llega al <strong>14.11%</strong>. Cuando hay muchos bancos, el default empieza a pesar también en volumen — señal de clientes en estrés real.</div></div>
+        <div class="finding wa"><div class="f-icon">🔍</div><div class="f-title">Micro: la mayor brecha por segmento</div><div class="f-text">Micro con 9+ bancos: <strong>85.29%</strong> de clientes en mora pero solo <strong>42.79%</strong> en importe. Los clientes micro defaultean masivamente pero con deudas chicas.</div></div>
+        <div class="finding ok"><div class="f-icon">🏢</div><div class="f-title">Grande: comportamiento diferente</div><div class="f-text">Segmento Grande con 9+ bancos: <strong>66.20%</strong> de mora por clientes pero solo <strong>7.54%</strong> en importe. Los grandes administran mejor sus obligaciones — <strong>defaultean menos en proporción de deuda</strong>.</div></div>
+        <div class="finding al"><div class="f-icon">🎯</div><div class="f-title">Variable predictiva clave</div><div class="f-text">La cantidad de bancos con los que opera un cliente es una <strong>señal de alerta temprana potente</strong>. Cada banco adicional suma ~8pp de probabilidad de mora por clientes.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-tbc" id="main-proba"><div class="coming-soon"><div class="cs-icon">⚙️</div><div class="cs-text">Punto 2 — Probabilidad de Mora según Cantidad de Bancos</div><div class="cs-sub">En desarrollo · regresión logística univariada</div></div></div>
+  <div class="main-tbc" id="main-contagio"><div class="coming-soon"><div class="cs-icon">⚙️</div><div class="cs-text">Punto 3 — Secuencia de Contagio entre Bancos</div><div class="cs-sub">En desarrollo · análisis temporal de propagación</div></div></div>
+  <div class="main-tbc" id="main-default"><div class="coming-soon"><div class="cs-icon">⚙️</div><div class="cs-text">Punto 4 — ¿Con qué banco defaultea primero?</div><div class="cs-sub">En desarrollo · banco de mayor vs. menor deuda</div></div></div>
+  <div class="main-tbc" id="main-sit2"><div class="coming-soon"><div class="cs-icon">⚙️</div><div class="cs-text">Punto 5 — Clientes con Situación 2 en Múltiples Bancos</div><div class="cs-sub">En desarrollo · análisis de estrés sistémico</div></div></div>
+  <div class="main-tbc" id="main-segmento"><div class="coming-soon"><div class="cs-icon">⚙️</div><div class="cs-text">Punto 6 — Segmentación por Nivel de Deuda</div><div class="cs-sub">En desarrollo</div></div></div>
+  <div class="main-tbc" id="main-modelo"><div class="coming-soon"><div class="cs-icon">⚙️</div><div class="cs-text">Punto 7 — Modelo de Regresión Logística Sistémica</div><div class="cs-sub">En desarrollo</div></div></div>
+</div>
+
+<script>
+const DATA    = {"total": {"v6": {"labels": ["1", "2", "3", "4", "5", "6", "7", "8", "9+"], "clientes": [244779, 163952, 90223, 42559, 18788, 8204, 3707, 1759, 1689], "morosos": [36074, 37655, 28070, 16440, 8517, 4285, 2095, 1055, 1170], "tasa_mora_cli": [14.74, 22.97, 31.11, 38.63, 45.33, 52.23, 56.51, 59.98, 69.27], "tasa_mora_imp": [2.7, 3.09, 3.68, 4.5, 5.17, 6.23, 7.34, 5.81, 14.11], "pct_clientes": [42.52, 28.48, 15.67, 7.39, 3.26, 1.43, 0.64, 0.31, 0.29], "deuda_prom": [3607.3, 9234.1, 15773.0, 23793.5, 35574.3, 48283.9, 67461.1, 107658.0, 128498.3]}, "v2": {"labels": ["1", "2", "3", "4", "5", "6", "7", "8", "9+"], "clientes": [195622, 166124, 104951, 56041, 27340, 13080, 6263, 3025, 3214], "morosos": [20024, 35237, 31718, 21587, 12460, 6763, 3559, 1804, 2209], "tasa_mora_cli": [10.24, 21.21, 30.22, 38.52, 45.57, 51.7, 56.83, 59.64, 68.73], "tasa_mora_imp": [2.28, 2.94, 3.48, 4.13, 4.81, 5.82, 6.03, 6.98, 11.3], "pct_clientes": [33.98, 28.86, 18.23, 9.74, 4.75, 2.27, 1.09, 0.53, 0.56], "deuda_prom": [3307.8, 7748.3, 12944.3, 19432.9, 27698.2, 37594.9, 50592.8, 75485.6, 117486.9]}}, "segmento": {"v6": {"1. Micro (< $1M)": {"labels": ["1", "2", "3", "4", "5", "6", "7", "8", "9+"], "clientes": [191806, 86628, 32412, 11013, 3605, 1214, 504, 174, 136], "morosos": [30376, 22196, 11681, 5196, 1985, 790, 353, 142, 116], "tasa_mora_cli": [15.84, 25.62, 36.04, 47.18, 55.06, 65.07, 70.04, 81.61, 85.29], "tasa_mora_imp": [3.14, 4.41, 6.49, 9.36, 11.93, 17.96, 24.39, 30.7, 42.79], "total_clientes": 327492, "total_morosos": 72835, "mora_importe_global": 5.7}, "2. Pequeño ($1M-$10M)": {"labels": ["1", "2", "3", "4", "5", "6", "7", "8", "9+"], "clientes": [49799, 70046, 50880, 26815, 12310, 5507, 2409, 1113, 1039], "morosos": [5113, 13551, 14048, 9346, 5221, 2730, 1310, 648, 715], "tasa_mora_cli": [10.27, 19.35, 27.61, 34.85, 42.41, 49.57, 54.38, 58.22, 68.82], "tasa_mora_imp": [1.82, 2.4, 3.26, 4.87, 6.86, 8.56, 10.52, 13.32, 20.34], "total_clientes": 219918, "total_morosos": 52682, "mora_importe_global": 4.23}, "3. Mediano ($10M-$100M)": {"labels": ["1", "2", "3", "4", "5", "6", "7", "8", "9+"], "clientes": [3068, 6902, 6449, 4276, 2551, 1299, 676, 389, 434], "morosos": [565, 1799, 2166, 1712, 1154, 669, 371, 222, 286], "tasa_mora_cli": [18.42, 26.06, 33.59, 40.04, 45.24, 51.5, 54.88, 57.07, 65.9], "tasa_mora_imp": [3.44, 2.78, 3.18, 3.56, 4.6, 5.83, 7.85, 9.13, 10.98], "total_clientes": 26044, "total_morosos": 8944, "mora_importe_global": 3.92}, "4. Grande ($100M-$1B)": {"labels": ["1", "2", "3", "4", "5", "6", "7", "8", "9+"], "clientes": [106, 376, 479, 452, 319, 177, 110, 71, 71], "morosos": [20, 109, 173, 185, 156, 93, 60, 41, 47], "tasa_mora_cli": [18.87, 28.99, 36.12, 40.93, 48.9, 52.54, 54.55, 57.75, 66.2], "tasa_mora_imp": [3.11, 4.14, 3.6, 3.38, 3.03, 4.43, 4.77, 3.79, 7.54], "total_clientes": 2161, "total_morosos": 884, "mora_importe_global": 4.04}, "5. Corporativo (> $1B)": {"labels": ["3", "4", "5", "6", "7", "8", "9+"], "clientes": [3, 3, 3, 7, 8, 12, 9], "morosos": [2, 1, 1, 3, 1, 2, 6], "tasa_mora_cli": [66.67, 33.33, 33.33, 42.86, 12.5, 16.67, 66.67], "tasa_mora_imp": [0.19, 6.65, 7.1, 0.02, 5.08, 0.19, 24.87], "total_clientes": 45, "total_morosos": 16, "mora_importe_global": 8.66}}, "v2": {"1. Micro (< $1M)": {"labels": ["1", "2", "3", "4", "5", "6", "7", "8", "9+"], "clientes": [155006, 97667, 45055, 18145, 7011, 2649, 1173, 415, 371], "morosos": [17668, 23717, 16028, 8445, 3874, 1685, 811, 305, 302], "tasa_mora_cli": [11.4, 24.28, 35.57, 46.54, 55.26, 63.61, 69.14, 73.49, 81.4], "tasa_mora_imp": [2.66, 3.93, 5.88, 7.89, 9.27, 14.68, 17.35, 24.71, 35.68], "total_clientes": 327492, "total_morosos": 72835, "mora_importe_global": 5.7}, "2. Pequeño ($1M-$10M)": {"labels": ["1", "2", "3", "4", "5", "6", "7", "8", "9+"], "clientes": [38289, 62422, 53232, 32712, 16947, 8450, 3978, 1949, 1939], "morosos": [2068, 10110, 13572, 11197, 7066, 4076, 2150, 1133, 1310], "tasa_mora_cli": [5.4, 16.2, 25.5, 34.23, 41.69, 48.24, 54.05, 58.13, 67.56], "tasa_mora_imp": [1.5, 2.17, 2.88, 4.29, 5.67, 7.44, 9.09, 11.86, 17.38], "total_clientes": 219918, "total_morosos": 52682, "mora_importe_global": 4.23}, "3. Mediano ($10M-$100M)": {"labels": ["1", "2", "3", "4", "5", "6", "7", "8", "9+"], "clientes": [2246, 5753, 6242, 4743, 3027, 1758, 976, 556, 743], "morosos": [277, 1338, 1986, 1770, 1347, 888, 534, 312, 492], "tasa_mora_cli": [12.33, 23.26, 31.82, 37.32, 44.5, 50.51, 54.71, 56.12, 66.22], "tasa_mora_imp": [2.88, 2.97, 2.96, 3.47, 3.65, 5.28, 6.2, 8.74, 10.42], "total_clientes": 26044, "total_morosos": 8944, "mora_importe_global": 3.92}, "4. Grande ($100M-$1B)": {"labels": ["1", "2", "3", "4", "5", "6", "7", "8", "9+"], "clientes": [81, 282, 422, 438, 350, 221, 130, 95, 142], "morosos": [11, 72, 132, 173, 172, 113, 64, 51, 96], "tasa_mora_cli": [13.58, 25.53, 31.28, 39.5, 49.14, 51.13, 49.23, 53.68, 67.61], "tasa_mora_imp": [3.28, 3.7, 3.65, 3.06, 3.9, 3.43, 3.62, 2.5, 7.45], "total_clientes": 2161, "total_morosos": 884, "mora_importe_global": 4.04}, "5. Corporativo (> $1B)": {"labels": ["4", "5", "6", "7", "8", "9+"], "clientes": [3, 5, 2, 6, 10, 19], "morosos": [2, 1, 1, 0, 3, 9], "tasa_mora_cli": [66.67, 20.0, 50.0, 0.0, 30.0, 47.37], "tasa_mora_imp": [0.22, 3.09, 0.07, 0.0, 7.02, 14.87], "total_clientes": 45, "total_morosos": 16, "mora_importe_global": 8.66}}}};
+const SEG_TOT = {"1. Micro (< $1M)": {"clientes": 327492, "morosos": 72835, "tasa_mora_cli": 22.24, "tasa_mora_imp": 5.7}, "2. Pequeño ($1M-$10M)": {"clientes": 219918, "morosos": 52682, "tasa_mora_cli": 23.96, "tasa_mora_imp": 4.23}, "3. Mediano ($10M-$100M)": {"clientes": 26044, "morosos": 8944, "tasa_mora_cli": 34.34, "tasa_mora_imp": 3.92}, "4. Grande ($100M-$1B)": {"clientes": 2161, "morosos": 884, "tasa_mora_cli": 40.91, "tasa_mora_imp": 4.04}, "5. Corporativo (> $1B)": {"clientes": 45, "morosos": 16, "tasa_mora_cli": 35.56, "tasa_mora_imp": 8.66}};
+
+Chart.defaults.font.family="'IBM Plex Sans',sans-serif";
+Chart.defaults.font.size=11;
+const gc='#e8ecf2', ac='#8a9bb0';
+
+let criterio='v6', segmento='total', tipoMora='cli';
+let cCombinado, cDist, cMora, cAmbas;
+
+function mc(v){return v>=50?'#c0392b':v>=35?'#d35400':v>=20?'#b7770d':'#1a7a4a';}
+function mcI(v){return v>=15?'#c0392b':v>=8?'#d35400':v>=4?'#b7770d':'#1a7a4a';}
+function fmtN(v){return v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v.toLocaleString();}
+function fmtM(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+v.toLocaleString();}
+
+function getData(){
+  if(segmento==='total') return DATA.total[criterio];
+  const seg=DATA.segmento[criterio][segmento];
+  if(!seg) return DATA.total[criterio];
+  const total=seg.clientes.reduce((a,b)=>a+b,0);
+  return {
+    labels:       seg.labels,
+    clientes:     seg.clientes,
+    morosos:      seg.morosos,
+    tasa_mora_cli:seg.tasa_mora_cli,
+    tasa_mora_imp:seg.tasa_mora_imp,
+    pct_clientes: seg.clientes.map(c=>+(c/total*100).toFixed(2)),
+    deuda_prom:   seg.clientes.map(()=>0),
+  };
+}
+
+function getMoraData(d){
+  return tipoMora==='imp' ? d.tasa_mora_imp : d.tasa_mora_cli;
+}
+
+function getMoraColor(v){
+  return tipoMora==='imp' ? mcI(v) : mc(v);
+}
+
+function initCharts(){
+  const d=getData();
+  const mora=getMoraData(d);
+
+  cCombinado=new Chart(document.getElementById('cCombinado'),{
+    type:'bar',
+    data:{labels:d.labels,datasets:[
+      {label:'Clientes',data:d.clientes,backgroundColor:'rgba(26,86,160,0.45)',borderRadius:4,yAxisID:'y'},
+      {label:'Tasa de mora %',data:mora,type:'line',borderColor:'#c0392b',backgroundColor:'rgba(192,57,43,0.06)',borderWidth:2.5,pointRadius:5,pointBackgroundColor:mora.map(v=>getMoraColor(v)),pointBorderColor:mora.map(v=>getMoraColor(v)),tension:0.3,fill:true,yAxisID:'y2'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#4a5568',font:{size:11}}},tooltip:{backgroundColor:'#0f2744',callbacks:{
+        title:c=>`${c[0].label} banco${c[0].label==='1'?'':'s'}`,
+        label:c=>c.dataset.label==='Clientes'?` ${fmtN(c.parsed.y)} clientes`:` Mora: ${c.parsed.y.toFixed(2)}%`
+      }}},
+      scales:{
+        x:{ticks:{color:ac},grid:{color:gc},title:{display:true,text:'Cantidad de bancos',color:ac,font:{size:11}}},
+        y:{ticks:{color:ac,callback:v=>fmtN(v)},grid:{color:gc},title:{display:true,text:'Clientes',color:ac,font:{size:11}}},
+        y2:{position:'right',ticks:{color:'#c0392b',callback:v=>v+'%'},grid:{display:false},suggestedMax:90}
+      }
+    }
+  });
+
+  cDist=new Chart(document.getElementById('cDist'),{
+    type:'bar',
+    data:{labels:d.labels,datasets:[{label:'% clientes',data:d.pct_clientes,backgroundColor:'rgba(26,86,160,0.55)',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f2744',callbacks:{label:c=>` ${c.parsed.y.toFixed(2)}% (${fmtN(d.clientes[c.dataIndex])} clientes)`}}},
+      scales:{x:{ticks:{color:ac},grid:{color:gc}},y:{ticks:{color:ac,callback:v=>v+'%'},grid:{color:gc}}}
+    }
+  });
+
+  cMora=new Chart(document.getElementById('cMora'),{
+    type:'bar',
+    data:{labels:d.labels,datasets:[{data:mora,backgroundColor:mora.map(v=>getMoraColor(v)+'bb'),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f2744',callbacks:{label:c=>` ${c.parsed.y.toFixed(2)}%`}}},
+      scales:{x:{ticks:{color:ac},grid:{color:gc}},y:{ticks:{color:ac,callback:v=>v+'%'},grid:{color:gc},suggestedMax:90}}
+    }
+  });
+
+  cAmbas=new Chart(document.getElementById('cAmbas'),{
+    type:'line',
+    data:{labels:d.labels,datasets:[
+      {label:'Mora por clientes %',data:d.tasa_mora_cli,borderColor:'#1a56a0',backgroundColor:'rgba(26,86,160,0.06)',borderWidth:2.5,pointRadius:4,tension:0.3,fill:false},
+      {label:'Mora por importe %', data:d.tasa_mora_imp,borderColor:'#c0392b',backgroundColor:'rgba(192,57,43,0.06)',borderWidth:2.5,pointRadius:4,tension:0.3,fill:false,borderDash:[5,3]}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#4a5568',font:{size:11}}},tooltip:{backgroundColor:'#0f2744',callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(2)}%`}}},
+      scales:{
+        x:{ticks:{color:ac},grid:{color:gc},title:{display:true,text:'Cantidad de bancos',color:ac,font:{size:11}}},
+        y:{ticks:{color:ac,callback:v=>v+'%'},grid:{color:gc},suggestedMin:0,suggestedMax:90,title:{display:true,text:'Tasa de mora %',color:ac,font:{size:11}}}
+      }
+    }
+  });
+
+  buildTable(d);
+  updateNote();
+}
+
+function updateCharts(){
+  const d=getData();
+  const mora=getMoraData(d);
+  cCombinado.data.labels=d.labels;
+  cCombinado.data.datasets[0].data=d.clientes;
+  cCombinado.data.datasets[1].data=mora;
+  cCombinado.data.datasets[1].pointBackgroundColor=mora.map(v=>getMoraColor(v));
+  cCombinado.data.datasets[1].pointBorderColor=mora.map(v=>getMoraColor(v));
+  cCombinado.update();
+  cDist.data.labels=d.labels;cDist.data.datasets[0].data=d.pct_clientes;cDist.update();
+  cMora.data.labels=d.labels;cMora.data.datasets[0].data=mora;
+  cMora.data.datasets[0].backgroundColor=mora.map(v=>getMoraColor(v)+'bb');cMora.update();
+  cAmbas.data.labels=d.labels;
+  cAmbas.data.datasets[0].data=d.tasa_mora_cli;
+  cAmbas.data.datasets[1].data=d.tasa_mora_imp;
+  cAmbas.update();
+  buildTable(d);
+  updateNote();
+  updateSegKpis();
+}
+
+function buildTable(d){
+  const tb=document.getElementById('tDist');tb.innerHTML='';
+  const thead=document.createElement('thead'),tr0=document.createElement('tr');
+  [['Bancos',false],['Clientes',true],['% Universo',true],['Morosos',true],['Mora / Clientes',true],['Mora / Importe',true]]
+    .forEach(([l,r])=>{const th=document.createElement('th');th.textContent=l;if(r)th.className='r';tr0.appendChild(th);});
+  thead.appendChild(tr0);tb.appendChild(thead);
+  const tbody=document.createElement('tbody');
+  d.labels.forEach((lbl,i)=>{
+    const tr=document.createElement('tr');
+    const cC=mc(d.tasa_mora_cli[i]), cI=mcI(d.tasa_mora_imp[i]);
+    const bC=Math.round(d.tasa_mora_cli[i]/90*60), bI=Math.round(d.tasa_mora_imp[i]/90*60);
+    [`<strong style="font-family:var(--mono)">${lbl}</strong>`,
+     d.clientes[i].toLocaleString(),
+     d.pct_clientes[i].toFixed(2)+'%',
+     d.morosos[i].toLocaleString(),
+     `<div class="mora-wrap"><span style="font-family:var(--mono);font-weight:600;color:${cC}">${d.tasa_mora_cli[i].toFixed(2)}%</span><div class="mora-bar-bg"><div class="mora-bar-fill" style="width:${bC}px;background:${cC}"></div></div></div>`,
+     `<div class="mora-wrap"><span style="font-family:var(--mono);font-weight:600;color:${cI}">${d.tasa_mora_imp[i].toFixed(2)}%</span><div class="mora-bar-bg"><div class="mora-bar-fill" style="width:${bI}px;background:${cI}"></div></div></div>`,
+    ].forEach((v,j)=>{const td=document.createElement('td');td.className=j===0?'':'r';td.innerHTML=v;tr.appendChild(td);});
+    tbody.appendChild(tr);
+  });
+  tb.appendChild(tbody);
+  const lbl=segmento==='total'?'Todos los segmentos':segmento;
+  const crit=criterio==='v6'?'≥6 períodos':'≥2 períodos';
+  document.getElementById('tabSub').textContent=`${lbl} · ${crit} · segmento fijado en feb-2024`;
+  document.getElementById('secSub').textContent=`${lbl} · ${crit}`;
+}
+
+function updateNote(){
+  const d=getData();
+  const total=d.clientes.reduce((a,b)=>a+b,0);
+  document.getElementById('ctrlNote').textContent=`${total.toLocaleString()} clientes · ${segmento==='total'?'todos los segmentos':segmento}`;
+}
+
+function updateSegKpis(){
+  const k=document.getElementById('segKpis');
+  if(segmento==='total'){k.style.display='none';return;}
+  k.style.display='grid';
+  const st=SEG_TOT[segmento]||{};
+  document.getElementById('sk-cli').textContent=st.clientes?(st.clientes).toLocaleString():'—';
+  document.getElementById('sk-mor').textContent=st.morosos?(st.morosos).toLocaleString():'—';
+  document.getElementById('sk-tmc').textContent=st.tasa_mora_cli?st.tasa_mora_cli.toFixed(2)+'%':'—';
+  document.getElementById('sk-tmi').textContent=st.tasa_mora_imp?st.tasa_mora_imp.toFixed(2)+'%':'—';
+}
+
+function setCriterio(v,el){
+  criterio=v;
+  document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  updateCharts();
+}
+
+function setSegmento(v){segmento=v;updateCharts();}
+
+function setTipoMora(v,el){
+  tipoMora=v;
+  document.querySelectorAll('.tab2').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  const cardA=document.getElementById('cardAmbas');
+  if(v==='ambas'){cardA.style.display='block';}
+  else{cardA.style.display='none';}
+  const titulo={cli:'Mora por Clientes (%)',imp:'Mora por Importe (%)',ambas:'Comparar ambas'};
+  const subtit={cli:'% de clientes con situación ≥ 2',imp:'Deuda en mora / Deuda total',ambas:'Ambas tasas comparadas'};
+  document.getElementById('moraChartTitle').textContent=titulo[v]||titulo.cli;
+  document.getElementById('moraChartSub').textContent=subtit[v]||subtit.cli;
+  document.getElementById('combinadoTitle').textContent=
+    v==='imp'?'Distribución de Clientes + Mora por Importe':
+    v==='ambas'?'Distribución de Clientes + Mora por Clientes':
+    'Distribución de Clientes + Mora por Clientes';
+  updateCharts();
+}
+
+function mainSw(n,el){
+  document.querySelectorAll('.main-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.main-tbc').forEach(t=>t.classList.remove('active'));
+  document.getElementById('main-'+n).classList.add('active');el.classList.add('active');
+}
+
+initCharts();
+</script>
+</body>
+</html>

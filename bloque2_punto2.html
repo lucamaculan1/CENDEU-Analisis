@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloque 2 — Comportamiento del Cliente · Sistema Financiero Argentino</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f2f5f9;--surface:#fff;--surface2:#f7f9fc;--border:#dde3ec;
+  --navy:#0f2744;--blue:#1a56a0;--blue-lt:#e8f0fb;
+  --red:#c0392b;--red-lt:#fdf0ee;
+  --orange:#d35400;--orange-lt:#fef3ec;
+  --green:#1a7a4a;--green-lt:#eaf5ef;
+  --yellow:#b7770d;--yellow-lt:#fef9ec;
+  --text:#1a2535;--text-mid:#4a5568;--text-muted:#8a9bb0;
+  --font:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;}
+.nav{background:#08192e;padding:0 56px;display:flex;align-items:center;gap:4px;border-bottom:1px solid #1a2d47;}
+.nav-btn{padding:14px 20px;font-size:12px;font-weight:600;color:#5a7c99;border:none;background:transparent;cursor:pointer;font-family:var(--font);border-bottom:3px solid transparent;transition:all .15s;text-decoration:none;display:inline-block;}
+.nav-btn:hover{color:#fff;} .nav-btn.active{color:#fff;border-bottom-color:var(--blue);}
+.nav-sep{color:#1a2d47;padding:0 4px;font-size:18px;}
+.header{background:var(--navy);padding:36px 56px 32px;position:relative;overflow:hidden;}
+.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1a56a0,#2e86de,#54a0ff);}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#7fb3e8;margin-bottom:10px;}
+.header h1{font-size:26px;font-weight:700;color:#fff;line-height:1.25;margin-bottom:7px;}
+.header-sub{font-size:12px;color:#8aaccc;}
+.header-meta{position:absolute;top:36px;right:56px;text-align:right;}
+.period{font-size:20px;font-weight:700;color:#fff;font-family:var(--mono);}
+.period-label{font-size:10px;color:#7fb3e8;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+.source{font-size:11px;color:#5a7c99;margin-top:5px;}
+.container{max-width:1380px;margin:0 auto;padding:32px 56px 72px;}
+
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:32px;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--border);border-radius:10px;padding:18px 16px 16px;transition:box-shadow .2s;}
+.kpi:hover{box-shadow:0 4px 14px rgba(0,0,0,.07);}
+.kpi.bl{border-top-color:var(--blue);} .kpi.re{border-top-color:var(--red);}
+.kpi.or{border-top-color:var(--orange);} .kpi.gr{border-top-color:var(--green);}
+.kpi.ye{border-top-color:var(--yellow);} .kpi.pu{border-top-color:#6c3483;}
+.kpi-lbl{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:7px;}
+.kpi-val{font-size:24px;font-weight:700;color:var(--text);font-family:var(--mono);line-height:1;}
+.kpi-sub{font-size:11px;color:var(--text-muted);margin-top:5px;}
+.kpi-delta{font-size:11px;font-weight:600;margin-top:3px;}
+.up{color:var(--red);} .dn{color:var(--green);}
+
+.sec-hdr{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:11px;border-bottom:2px solid var(--border);}
+.sec-num{width:26px;height:26px;background:var(--blue);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.sec-title{font-size:15px;font-weight:700;color:var(--navy);}
+.sec-sub{font-size:11px;color:var(--text-muted);margin-left:auto;}
+.section{margin-bottom:40px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px;}
+.card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.card-sub{font-size:11px;color:var(--text-muted);margin-bottom:16px;font-family:var(--mono);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.mt{margin-top:14px;}
+.cw{position:relative;}
+.h260{height:260px;} .h300{height:300px;} .h340{height:340px;} .h400{height:400px;} .h420{height:420px;}
+
+.highlight-box{background:linear-gradient(135deg,#e8f0fb,#f2f5f9);border:1px solid #c5d9f5;border-left:4px solid var(--blue);border-radius:10px;padding:20px 24px;margin-bottom:20px;}
+.highlight-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+.highlight-text{font-size:13px;color:var(--text-mid);line-height:1.6;}
+.highlight-text strong{color:var(--navy);}
+
+/* TABLA PARÁMETROS */
+.param-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.param-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;}
+.param-seg{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid;}
+.param-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);}
+.param-row:last-child{border-bottom:none;}
+.param-lbl{font-size:11px;color:var(--text-muted);}
+.param-val{font-size:12px;font-weight:700;font-family:var(--mono);color:var(--text);}
+.sig-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;font-family:var(--mono);}
+.sig-yes{background:var(--green-lt);color:var(--green);}
+.sig-no{background:var(--red-lt);color:var(--red);}
+
+/* TABLA */
+table{width:100%;border-collapse:collapse;}
+thead th{background:var(--surface2);color:var(--text-muted);font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);white-space:nowrap;font-family:var(--mono);}
+thead th.r{text-align:right;}
+tbody tr{border-bottom:1px solid var(--border);transition:background .12s;}
+tbody tr:hover{background:var(--surface2);}
+tbody td{padding:9px 13px;font-size:12px;color:var(--text);}
+tbody td.r{text-align:right;font-family:var(--mono);font-size:12px;}
+tbody tr:last-child{border-bottom:none;}
+.res-pos{color:var(--green);font-weight:600;}
+.res-neg{color:var(--red);font-weight:600;}
+
+/* NOTA METODOLÓGICA */
+.nota{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin-top:16px;}
+.nota-title{font-size:11px;font-weight:700;color:var(--navy);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;}
+.nota-text{font-size:11px;color:var(--text-mid);line-height:1.7;}
+.nota-text strong{color:var(--text);}
+
+.findings{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.finding{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:8px;padding:16px;}
+.finding.wa{border-left-color:var(--orange);} .finding.al{border-left-color:var(--red);} .finding.ok{border-left-color:var(--green);}
+.f-icon{font-size:17px;margin-bottom:7px;} .f-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:5px;}
+.f-text{font-size:12px;color:var(--text-mid);line-height:1.6;} .f-text strong{color:var(--text);}
+
+/* SEG TABS */
+.seg-tabs{display:flex;gap:2px;margin-bottom:16px;background:var(--surface2);padding:3px;border-radius:7px;width:fit-content;border:1px solid var(--border);}
+.seg-tab{padding:6px 14px;font-size:12px;font-weight:600;border:none;border-radius:5px;cursor:pointer;background:transparent;color:var(--text-muted);transition:all .15s;font-family:var(--font);}
+.seg-tab.active{background:var(--surface);color:var(--navy);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+
+.coming-soon{background:var(--surface2);border:1px dashed var(--border);border-radius:10px;padding:40px;text-align:center;color:var(--text-muted);}
+.cs-icon{font-size:32px;margin-bottom:12px;} .cs-text{font-size:13px;font-weight:600;color:var(--text-mid);} .cs-sub{font-size:12px;margin-top:4px;}
+.main-tabs{display:flex;gap:0;margin-bottom:24px;border-bottom:2px solid var(--border);overflow-x:auto;}
+.main-tab{padding:10px 20px;font-size:13px;font-weight:600;border:none;background:transparent;color:var(--text-muted);cursor:pointer;font-family:var(--font);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap;}
+.main-tab.active{color:var(--navy);border-bottom-color:var(--blue);}
+.main-tbc{display:none;} .main-tbc.active{display:block;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="bloque1_completo.html" class="nav-btn">Bloque 1 — Fotografía del Sistema</a>
+  <span class="nav-sep">›</span>
+  <a href="bloque2.html" class="nav-btn active">Bloque 2 — Comportamiento del Cliente</a>
+</nav>
+
+<div class="header">
+  <div class="eyebrow">Bloque 2 — Comportamiento del Cliente en el Sistema</div>
+  <h1>Análisis de Comportamiento Crediticio<br>Sistema Financiero Argentino</h1>
+  <div class="header-sub">Universo: 575.660 empresas y responsables inscriptos · feb-2024 → feb-2026 · Fuente: CENDEU / BCRA · Duplicados consolidados</div>
+  <div class="header-meta">
+    <div class="period-label">Período analizado</div>
+    <div class="period">FEB 2024 – FEB 2026</div>
+    <div class="source">575K clientes · segmento fijado en feb-24</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="kpi-strip">
+    <div class="kpi bl"><div class="kpi-lbl">Odds Ratio Global</div><div class="kpi-val">1.462</div><div class="kpi-sub">por cada banco adicional</div></div>
+    <div class="kpi re"><div class="kpi-lbl">Coeficiente β₁</div><div class="kpi-val">0.3798</div><div class="kpi-sub">log-odds por banco extra</div></div>
+    <div class="kpi or"><div class="kpi-lbl">P(mora) con 1 banco</div><div class="kpi-val">16.0%</div><div class="kpi-sub">probabilidad base predicha</div></div>
+    <div class="kpi re"><div class="kpi-lbl">P(mora) con 9 bancos</div><div class="kpi-val">79.9%</div><div class="kpi-sub">probabilidad máxima predicha</div></div>
+    <div class="kpi gr"><div class="kpi-lbl">Pseudo R² (McFadden)</div><div class="kpi-val">0.048</div><div class="kpi-sub">modelo univariado · esperado</div></div>
+  </div>
+
+  <div class="main-tabs">
+    <button class="main-tab" onclick="mainSw('bancos',this)">1. Distribución por Bancos</button>
+    <button class="main-tab active" onclick="mainSw('proba',this)">2. Probabilidad de Mora</button>
+    <button class="main-tab" onclick="mainSw('contagio',this)">3. Contagio entre Bancos</button>
+    <button class="main-tab" onclick="mainSw('default',this)">4. ¿Con quién defaultea primero?</button>
+    <button class="main-tab" onclick="mainSw('sit2',this)">5. Sit 2 en múltiples bancos</button>
+    <button class="main-tab" onclick="mainSw('segmento',this)">6. Segmentación por Deuda</button>
+    <button class="main-tab" onclick="mainSw('modelo',this)">7. Modelo Logístico</button>
+  </div>
+
+  <div class="main-tbc" id="main-bancos"><div class="coming-soon"><div class="cs-icon">←</div><div class="cs-text">Ver archivo bloque2.html para el Punto 1</div></div></div>
+
+  <!-- ═══ TAB 2: PROBABILIDAD ═══ -->
+  <div class="main-tbc active" id="main-proba">
+
+    <div class="highlight-box">
+      <div class="highlight-title">🔑 Regresión Logística Univariada — Cantidad de bancos como predictor de mora</div>
+      <div class="highlight-text">
+        El modelo estima que <strong>por cada banco adicional, las chances de mora se multiplican por 1.462</strong> (Odds Ratio = 1.462, IC95%: [1.456 — 1.468], p = 0.000).
+        La probabilidad predicha va de <strong>16.0% con 1 banco</strong> a <strong>79.9% con 9+ bancos</strong>.
+        El modelo subestima la mora a partir de 7 bancos — señal de que en ese tramo el riesgo crece más rápido que lo que predice la curva logística lineal.
+      </div>
+    </div>
+
+    <!-- SECCIÓN 1: MODELO TOTAL -->
+    <div class="section">
+      <div class="sec-hdr">
+        <div class="sec-num">A</div>
+        <div class="sec-title">Curva de Probabilidad — Sistema Total</div>
+        <div class="sec-sub">Modelo logístico univariado · OR = 1.462</div>
+      </div>
+
+      <div class="g2" style="margin-bottom:14px">
+        <div class="card">
+          <div class="card-title">Curva Sigmoide: Probabilidad Predicha vs. Observada</div>
+          <div class="card-sub">Línea azul = modelo · puntos naranjas = valores reales observados</div>
+          <div class="cw h340"><canvas id="cSigmoide"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Residuos del Modelo (Observado − Predicho)</div>
+          <div class="card-sub">Positivo = modelo subestima mora · Negativo = modelo sobreestima</div>
+          <div class="cw h340"><canvas id="cResiduos"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card mt">
+        <div class="card-title">Tabla: Probabilidades Observadas vs. Predichas</div>
+        <div class="card-sub">El modelo ajusta bien en 1-5 bancos · subestima a partir de 7</div>
+        <div style="overflow-x:auto;margin-top:8px"><table id="tPred"></table></div>
+      </div>
+
+      <div class="nota">
+        <div class="nota-title">📖 Nota metodológica</div>
+        <div class="nota-text">
+          <strong>Regresión logística:</strong> modela P(mora) = 1 / (1 + e^-(β₀ + β₁ × n_bancos)). Ajustada por máxima verosimilitud sobre datos agrupados (575.660 clientes).
+          <strong>Odds Ratio (OR):</strong> indica cuántas veces se multiplican las chances de mora por cada banco adicional. OR=1.462 significa que pasar de N a N+1 bancos aumenta las chances en un 46.2%.
+          <strong>Pseudo R² de McFadden:</strong> 0.048 — bajo pero esperado en modelos univariados sobre datos heterogéneos. El valor refleja que la cantidad de bancos explica parte pero no toda la variabilidad de mora.
+          <strong>Residuos negativos altos (7-9 bancos):</strong> el modelo subestima la mora en clientes muy diversificados — sugiere que existe un efecto no lineal que un modelo multivariado capturaría mejor.
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2: POR SEGMENTO -->
+    <div class="section">
+      <div class="sec-hdr">
+        <div class="sec-num">B</div>
+        <div class="sec-title">Curvas por Segmento de Deuda</div>
+        <div class="sec-sub">4 segmentos · cada uno con su propio modelo logístico</div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">Curvas Sigmoides por Segmento — Comparación</div>
+        <div class="card-sub">Cada segmento tiene una pendiente distinta · Micro es el más sensible a bancos adicionales</div>
+        <div class="cw h400"><canvas id="cSegCurvas"></canvas></div>
+      </div>
+
+      <!-- Parámetros por segmento -->
+      <div class="param-grid">
+        <div class="param-card" id="pc-0"></div>
+        <div class="param-card" id="pc-1"></div>
+        <div class="param-card" id="pc-2"></div>
+        <div class="param-card" id="pc-3"></div>
+      </div>
+
+      <!-- Tabla predicciones por segmento -->
+      <div class="seg-tabs" id="segTabsContainer"></div>
+      <div class="card" id="cardPredSeg">
+        <div class="card-title" id="predSegTitle">Observado vs. Predicho — Segmento seleccionado</div>
+        <div class="card-sub">Probabilidad de mora observada vs. predicha por el modelo logístico</div>
+        <div style="overflow-x:auto;margin-top:8px"><table id="tPredSeg"></table></div>
+      </div>
+    </div>
+
+    <!-- HALLAZGOS -->
+    <div class="section">
+      <div class="sec-hdr"><div class="sec-num">C</div><div class="sec-title">Hallazgos del Modelo</div></div>
+      <div class="findings">
+        <div class="finding al">
+          <div class="f-icon">⚡</div>
+          <div class="f-title">OR = 1.462 — efecto fuerte y significativo</div>
+          <div class="f-text">Cada banco adicional multiplica las chances de mora por <strong>1.46x</strong>. IC 95% muy estrecho [1.456 — 1.468] — el efecto es robusto y no es ruido estadístico.</div>
+        </div>
+        <div class="finding al">
+          <div class="f-icon">📉</div>
+          <div class="f-title">El modelo subestima en 7+ bancos</div>
+          <div class="f-text">Residuos de <strong>-8.55, -13.16 y -10.65pp</strong> para 7, 8 y 9+ bancos. La curva logística lineal no captura el salto acelerado en los extremos — sugiere no linealidad.</div>
+        </div>
+        <div class="finding wa">
+          <div class="f-icon">📊</div>
+          <div class="f-title">Micro: el segmento más sensible</div>
+          <div class="f-text">OR = <strong>1.664</strong> — el mayor de todos los segmentos. Cada banco extra impacta mucho más en clientes pequeños. Con 9 bancos la probabilidad predicha llega a <strong>92%</strong>.</div>
+        </div>
+        <div class="finding ok">
+          <div class="f-icon">🏢</div>
+          <div class="f-title">Grande: menor sensibilidad</div>
+          <div class="f-text">OR = <strong>1.238</strong> — el más bajo. Los clientes grandes son menos sensibles al número de bancos. La probabilidad con 9 bancos es <strong>66%</strong> vs. 92% en Micro.</div>
+        </div>
+        <div class="finding ok">
+          <div class="f-icon">🎯</div>
+          <div class="f-title">Pseudo R² bajo pero esperado</div>
+          <div class="f-text">R² = <strong>0.048</strong> — típico de modelos univariados en crédito. La cantidad de bancos es un predictor potente pero no el único. El modelo multivariado (Punto 7) va a mejorar esto.</div>
+        </div>
+        <div class="finding al">
+          <div class="f-icon">🔑</div>
+          <div class="f-title">Punto de inflexión en 5 bancos</div>
+          <div class="f-text">A partir de <strong>5 bancos la probabilidad de mora supera el 45%</strong> en el sistema total. Es un umbral natural para definir alertas de riesgo elevado en el modelo de alerta temprana.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="main-tbc" id="main-contagio"><div class="coming-soon"><div class="cs-icon">⚙️</div><div class="cs-text">Punto 3 — Secuencia de Contagio entre Bancos</div><div class="cs-sub">En desarrollo</div></div></div>
+  <div class="main-tbc" id="main-default"><div class="coming-soon"><div class="cs-icon">⚙️</div><div class="cs-text">Punto 4 — ¿Con qué banco defaultea primero?</div><div class="cs-sub">En desarrollo</div></div></div>
+  <div class="main-tbc" id="main-sit2"><div class="coming-soon"><div class="cs-icon">⚙️</div><div class="cs-text">Punto 5 — Clientes con Situación 2 en Múltiples Bancos</div><div class="cs-sub">En desarrollo</div></div></div>
+  <div class="main-tbc" id="main-segmento"><div class="coming-soon"><div class="cs-icon">⚙️</div><div class="cs-text">Punto 6 — Segmentación por Nivel de Deuda</div><div class="cs-sub">En desarrollo</div></div></div>
+  <div class="main-tbc" id="main-modelo"><div class="coming-soon"><div class="cs-icon">⚙️</div><div class="cs-text">Punto 7 — Modelo de Regresión Logística Sistémica</div><div class="cs-sub">En desarrollo</div></div></div>
+
+</div>
+
+<script>
+const D = {"modelo": {"beta0": -2.0368, "beta1": 0.3798, "odds_ratio": 1.462, "or_ic_low": 1.4556, "or_ic_hi": 1.4684, "p_valor": 0.0, "pseudo_r2": 0.0478}, "pred_total": {"n_bancos": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0], "clientes": [244779, 163952, 90223, 42559, 18788, 8204, 3707, 1759, 1689], "morosos": [36074, 37655, 28070, 16440, 8517, 4285, 2095, 1055, 1170], "p_obs": [14.74, 22.97, 31.11, 38.63, 45.33, 52.23, 56.51, 59.98, 69.27], "p_pred": [16.02, 21.8, 28.96, 37.34, 46.56, 56.02, 65.06, 73.14, 79.92], "residuo": [-1.28, 1.16, 2.15, 1.29, -1.23, -3.79, -8.55, -13.16, -10.65]}, "curva_total": {"x": [1.0, 1.163265306122449, 1.326530612244898, 1.489795918367347, 1.6530612244897958, 1.816326530612245, 1.9795918367346936, 2.142857142857143, 2.3061224489795915, 2.4693877551020407, 2.63265306122449, 2.7959183673469385, 2.959183673469388, 3.1224489795918364, 3.2857142857142856, 3.4489795918367343, 3.612244897959184, 3.7755102040816326, 3.938775510204081, 4.1020408163265305, 4.26530612244898, 4.428571428571429, 4.591836734693877, 4.755102040816326, 4.918367346938775, 5.081632653061225, 5.244897959183673, 5.408163265306122, 5.571428571428571, 5.73469387755102, 5.897959183673469, 6.061224489795918, 6.224489795918367, 6.387755102040816, 6.551020408163265, 6.7142857142857135, 6.877551020408163, 7.040816326530612, 7.204081632653061, 7.367346938775509, 7.530612244897958, 7.693877551020408, 7.857142857142857, 8.020408163265305, 8.183673469387754, 8.346938775510203, 8.510204081632653, 8.673469387755102, 8.83673469387755, 9.0], "p_pred": [16.017, 16.868, 17.756, 18.679, 19.64, 20.637, 21.671, 22.742, 23.85, 24.994, 26.175, 27.39, 28.641, 29.925, 31.241, 32.588, 33.965, 35.369, 36.799, 38.252, 39.727, 41.221, 42.731, 44.255, 45.79, 47.333, 48.88, 50.43, 51.98, 53.525, 55.064, 56.593, 58.109, 59.611, 61.094, 62.558, 63.998, 65.414, 66.803, 68.164, 69.494, 70.793, 72.058, 73.289, 74.486, 75.646, 76.77, 77.858, 78.908, 79.922]}, "segmentos": [{"nombre": "1. Micro (< $1M)", "clientes": 327492, "beta1": 0.5091, "odds_ratio": 1.6639, "or_ic_low": 1.6503, "or_ic_hi": 1.6775, "p_valor": 0.0, "pseudo_r2": 0.0451, "p_mora_1b": 16.33, "p_mora_3b": 35.07, "p_mora_5b": 59.92, "p_mora_9b": 91.97}, {"nombre": "2. Pequeño ($1M-$10M)", "clientes": 219918, "beta1": 0.398, "odds_ratio": 1.4888, "or_ic_low": 1.4828, "or_ic_hi": 1.4948, "p_valor": 0.0, "pseudo_r2": 0.0594, "p_mora_1b": 13.24, "p_mora_3b": 25.27, "p_mora_5b": 42.84, "p_mora_9b": 78.65}, {"nombre": "3. Mediano ($10M-$100M)", "clientes": 26044, "beta1": 0.2687, "odds_ratio": 1.3082, "or_ic_low": 1.2997, "or_ic_hi": 1.3168, "p_valor": 0.0, "pseudo_r2": 0.0384, "p_mora_1b": 21.6, "p_mora_3b": 32.05, "p_mora_5b": 44.67, "p_mora_9b": 70.28}, {"nombre": "4. Grande (> $100M)", "clientes": 2206, "beta1": 0.2133, "odds_ratio": 1.2377, "or_ic_low": 1.1822, "or_ic_hi": 1.2958, "p_valor": 0.0, "pseudo_r2": 0.03, "p_mora_1b": 26.01, "p_mora_3b": 35.0, "p_mora_5b": 45.2, "p_mora_9b": 65.94}], "curvas_seg": {"1. Micro (< $1M)": {"x": [1.0, 1.163265306122449, 1.3265306122448979, 1.489795918367347, 1.6530612244897958, 1.816326530612245, 1.9795918367346939, 2.142857142857143, 2.3061224489795915, 2.4693877551020407, 2.63265306122449, 2.7959183673469385, 2.9591836734693877, 3.1224489795918364, 3.2857142857142856, 3.4489795918367343, 3.6122448979591835, 3.7755102040816326, 3.9387755102040813, 4.1020408163265305, 4.26530612244898, 4.428571428571429, 4.591836734693877, 4.755102040816326, 4.918367346938775, 5.081632653061225, 5.244897959183673, 5.408163265306122, 5.571428571428571, 5.73469387755102, 5.897959183673469, 6.061224489795918, 6.224489795918367, 6.387755102040816, 6.551020408163265, 6.7142857142857135, 6.877551020408163, 7.040816326530612, 7.204081632653061, 7.367346938775509, 7.530612244897958, 7.693877551020408, 7.857142857142857, 8.020408163265305, 8.183673469387754, 8.346938775510203, 8.510204081632653, 8.673469387755102, 8.83673469387755, 9.0], "p": [16.326, 17.493, 18.725, 20.023, 21.387, 22.818, 24.315, 25.877, 27.503, 29.191, 30.938, 32.742, 34.597, 36.502, 38.449, 40.434, 42.451, 44.493, 46.554, 48.627, 50.704, 52.779, 54.845, 56.894, 58.92, 60.915, 62.875, 64.794, 66.666, 68.487, 70.253, 71.96, 73.606, 75.189, 76.707, 78.159, 79.544, 80.864, 82.117, 83.305, 84.429, 85.491, 86.492, 87.434, 88.319, 89.15, 89.928, 90.656, 91.337, 91.972]}, "2. Pequeño ($1M-$10M)": {"x": [1.0, 1.163265306122449, 1.3265306122448979, 1.489795918367347, 1.6530612244897958, 1.816326530612245, 1.9795918367346939, 2.142857142857143, 2.3061224489795915, 2.4693877551020407, 2.63265306122449, 2.7959183673469385, 2.9591836734693877, 3.1224489795918364, 3.2857142857142856, 3.4489795918367343, 3.6122448979591835, 3.7755102040816326, 3.9387755102040813, 4.1020408163265305, 4.26530612244898, 4.428571428571429, 4.591836734693877, 4.755102040816326, 4.918367346938775, 5.081632653061225, 5.244897959183673, 5.408163265306122, 5.571428571428571, 5.73469387755102, 5.897959183673469, 6.061224489795918, 6.224489795918367, 6.387755102040816, 6.551020408163265, 6.7142857142857135, 6.877551020408163, 7.040816326530612, 7.204081632653061, 7.367346938775509, 7.530612244897958, 7.693877551020408, 7.857142857142857, 8.020408163265305, 8.183673469387754, 8.346938775510203, 8.510204081632653, 8.673469387755102, 8.83673469387755, 9.0], "p": [13.237, 14.001, 14.802, 15.64, 16.517, 17.432, 18.387, 19.383, 20.418, 21.494, 22.611, 23.768, 24.966, 26.203, 27.478, 28.792, 30.142, 31.528, 32.947, 34.398, 35.879, 37.387, 38.921, 40.476, 42.051, 43.642, 45.246, 46.86, 48.481, 50.105, 51.729, 53.349, 54.962, 56.565, 58.154, 59.727, 61.279, 62.809, 64.314, 65.791, 67.238, 68.653, 70.035, 71.38, 72.689, 73.96, 75.192, 76.384, 77.536, 78.647]}, "3. Mediano ($10M-$100M)": {"x": [1.0, 1.163265306122449, 1.3265306122448979, 1.489795918367347, 1.6530612244897958, 1.816326530612245, 1.9795918367346939, 2.142857142857143, 2.3061224489795915, 2.4693877551020407, 2.63265306122449, 2.7959183673469385, 2.9591836734693877, 3.1224489795918364, 3.2857142857142856, 3.4489795918367343, 3.6122448979591835, 3.7755102040816326, 3.9387755102040813, 4.1020408163265305, 4.26530612244898, 4.428571428571429, 4.591836734693877, 4.755102040816326, 4.918367346938775, 5.081632653061225, 5.244897959183673, 5.408163265306122, 5.571428571428571, 5.73469387755102, 5.897959183673469, 6.061224489795918, 6.224489795918367, 6.387755102040816, 6.551020408163265, 6.7142857142857135, 6.877551020408163, 7.040816326530612, 7.204081632653061, 7.367346938775509, 7.530612244897958, 7.693877551020408, 7.857142857142857, 8.020408163265305, 8.183673469387754, 8.346938775510203, 8.510204081632653, 8.673469387755102, 8.83673469387755, 9.0], "p": [21.604, 22.356, 23.127, 23.916, 24.723, 25.549, 26.392, 27.253, 28.132, 29.027, 29.939, 30.867, 31.811, 32.77, 33.744, 34.732, 35.733, 36.746, 37.772, 38.808, 39.855, 40.911, 41.976, 43.048, 44.126, 45.211, 46.299, 47.392, 48.487, 49.583, 50.679, 51.776, 52.87, 53.961, 55.049, 56.132, 57.209, 58.28, 59.342, 60.396, 61.441, 62.475, 63.497, 64.508, 65.506, 66.49, 67.461, 68.416, 69.356, 70.281]}, "4. Grande (> $100M)": {"x": [1.0, 1.163265306122449, 1.3265306122448979, 1.489795918367347, 1.6530612244897958, 1.816326530612245, 1.9795918367346939, 2.142857142857143, 2.3061224489795915, 2.4693877551020407, 2.63265306122449, 2.7959183673469385, 2.9591836734693877, 3.1224489795918364, 3.2857142857142856, 3.4489795918367343, 3.6122448979591835, 3.7755102040816326, 3.9387755102040813, 4.1020408163265305, 4.26530612244898, 4.428571428571429, 4.591836734693877, 4.755102040816326, 4.918367346938775, 5.081632653061225, 5.244897959183673, 5.408163265306122, 5.571428571428571, 5.73469387755102, 5.897959183673469, 6.061224489795918, 6.224489795918367, 6.387755102040816, 6.551020408163265, 6.7142857142857135, 6.877551020408163, 7.040816326530612, 7.204081632653061, 7.367346938775509, 7.530612244897958, 7.693877551020408, 7.857142857142857, 8.020408163265305, 8.183673469387754, 8.346938775510203, 8.510204081632653, 8.673469387755102, 8.83673469387755, 9.0], "p": [26.007, 26.683, 27.37, 28.067, 28.776, 29.495, 30.224, 30.963, 31.713, 32.472, 33.24, 34.017, 34.803, 35.597, 36.4, 37.21, 38.027, 38.851, 39.681, 40.518, 41.36, 42.207, 43.059, 43.914, 44.774, 45.636, 46.502, 47.369, 48.238, 49.108, 49.978, 50.849, 51.719, 52.588, 53.455, 54.321, 55.183, 56.043, 56.899, 57.751, 58.598, 59.44, 60.277, 61.108, 61.932, 62.75, 63.56, 64.363, 65.158, 65.944]}}, "pred_seg": {"1. Micro (< $1M)": {"n_bancos": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0], "clientes": [191806, 86628, 32412, 11013, 3605, 1214, 504, 174, 136], "morosos": [30376, 22196, 11681, 5196, 1985, 790, 353, 142, 116], "p_obs": [15.84, 25.62, 36.04, 47.18, 55.06, 65.07, 70.04, 81.61, 85.29], "p_pred": [16.33, 24.51, 35.07, 47.33, 59.92, 71.33, 80.54, 87.32, 91.97], "residuo": [-0.49, 1.12, 0.97, -0.15, -4.86, -6.25, -10.5, -5.71, -6.68]}, "2. Pequeño ($1M-$10M)": {"n_bancos": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0], "clientes": [49799, 70046, 50880, 26815, 12310, 5507, 2409, 1113, 1039], "morosos": [5113, 13551, 14048, 9346, 5221, 2730, 1310, 648, 715], "p_obs": [10.27, 19.35, 27.61, 34.85, 42.41, 49.57, 54.38, 58.22, 68.82], "p_pred": [13.24, 18.51, 25.27, 33.49, 42.84, 52.74, 62.43, 71.21, 78.65], "residuo": [-2.97, 0.84, 2.34, 1.37, -0.43, -3.17, -8.05, -12.99, -9.83]}, "3. Mediano ($10M-$100M)": {"n_bancos": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0], "clientes": [3068, 6902, 6449, 4276, 2551, 1299, 676, 389, 434], "morosos": [565, 1799, 2166, 1712, 1154, 669, 371, 222, 286], "p_obs": [18.42, 26.06, 33.59, 40.04, 45.24, 51.5, 54.88, 57.07, 65.9], "p_pred": [21.6, 26.5, 32.05, 38.16, 44.67, 51.36, 58.01, 64.38, 70.28], "residuo": [-3.19, -0.43, 1.54, 1.88, 0.57, 0.14, -3.13, -7.31, -4.38]}, "4. Grande (> $100M)": {"n_bancos": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0], "clientes": [106, 376, 482, 455, 322, 184, 118, 83, 80], "morosos": [20, 109, 175, 186, 157, 96, 61, 43, 53], "p_obs": [18.87, 28.99, 36.31, 40.88, 48.76, 52.17, 51.69, 51.81, 66.25], "p_pred": [26.01, 30.32, 35.0, 39.99, 45.2, 50.52, 55.83, 61.0, 65.94], "residuo": [-7.14, -1.33, 1.31, 0.88, 3.55, 1.65, -4.13, -9.2, 0.31]}}};
+const SEG_COLORS = {
+  '1. Micro (< $1M)':       '#1a56a0',
+  '2. Pequeño ($1M-$10M)':  '#d35400',
+  '3. Mediano ($10M-$100M)':'#1a7a4a',
+  '4. Grande (> $100M)':    '#6c3483',
+};
+
+Chart.defaults.font.family="'IBM Plex Sans',sans-serif";
+Chart.defaults.font.size=11;
+const gc='#e8ecf2', ac='#8a9bb0';
+
+// ── Curva sigmoide total ──
+new Chart(document.getElementById('cSigmoide'),{
+  type:'line',
+  data:{
+    datasets:[
+      {
+        label:'Modelo (predicho)',
+        data: D.curva_total.x.map((x,i)=>{return {x,y:D.curva_total.p_pred[i]}}),
+        borderColor:'#1a56a0',borderWidth:2.5,pointRadius:0,tension:0,fill:false,
+      },
+      {
+        label:'Observado',
+        data: D.pred_total.n_bancos.map((x,i)=>{return {x,y:D.pred_total.p_obs[i]}}),
+        borderColor:'#d35400',backgroundColor:'#d35400',
+        borderWidth:0,pointRadius:7,pointStyle:'circle',showLine:false,
+      }
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{labels:{color:'#4a5568',font:{size:11}}},
+      tooltip:{backgroundColor:'#0f2744',callbacks:{
+        label:c=>c.dataset.label==='Observado'?
+          ` Observado: ${c.parsed.y.toFixed(2)}%`:
+          ` Predicho: ${c.parsed.y.toFixed(2)}%`
+      }}
+    },
+    scales:{
+      x:{type:'linear',ticks:{color:ac,stepSize:1},grid:{color:gc},
+          title:{display:true,text:'Cantidad de bancos',color:ac,font:{size:11}},
+          min:1,max:9},
+      y:{ticks:{color:ac,callback:v=>v+'%'},grid:{color:gc},
+          title:{display:true,text:'P(mora) %',color:ac,font:{size:11}},
+          min:0,max:90}
+    }
+  }
+});
+
+// ── Residuos ──
+const resColors = D.pred_total.residuo.map(v=>v>=0?'rgba(26,122,74,0.7)':'rgba(192,57,43,0.7)');
+new Chart(document.getElementById('cResiduos'),{
+  type:'bar',
+  data:{
+    labels: D.pred_total.n_bancos.map(x=>x===9?'9+':String(x)),
+    datasets:[{
+      label:'Residuo (pp)',
+      data: D.pred_total.residuo,
+      backgroundColor: resColors,
+      borderRadius:4,
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f2744',callbacks:{
+      label:c=>` Residuo: ${c.parsed.y.toFixed(2)}pp`
+    }}},
+    scales:{
+      x:{ticks:{color:ac},grid:{color:gc},
+          title:{display:true,text:'Cantidad de bancos',color:ac,font:{size:11}}},
+      y:{ticks:{color:ac,callback:v=>v+'pp'},grid:{color:gc},
+          title:{display:true,text:'Residuo (pp)',color:ac,font:{size:11}}}
+    }
+  }
+});
+
+// ── Tabla predicciones total ──
+(function(){
+  const tb=document.getElementById('tPred');
+  const thead=document.createElement('thead'),tr0=document.createElement('tr');
+  [['Bancos',false],['Clientes',true],['Morosos',true],['P(mora) Observada',true],['P(mora) Predicha',true],['Residuo',true]]
+    .forEach(([l,r])=>{const th=document.createElement('th');th.textContent=l;if(r)th.className='r';tr0.appendChild(th);});
+  thead.appendChild(tr0);tb.appendChild(thead);
+  const tbody=document.createElement('tbody');
+  D.pred_total.n_bancos.forEach((x,i)=>{
+    const tr=document.createElement('tr');
+    const res=D.pred_total.residuo[i];
+    const resClass=res>=0?'res-pos':'res-neg';
+    [`<strong style="font-family:var(--mono)">${x===9?'9+':x}</strong>`,
+     D.pred_total.clientes[i].toLocaleString(),
+     D.pred_total.morosos[i].toLocaleString(),
+     `<span style="font-family:var(--mono);font-weight:600">${D.pred_total.p_obs[i].toFixed(2)}%</span>`,
+     `<span style="font-family:var(--mono);font-weight:600;color:var(--blue)">${D.pred_total.p_pred[i].toFixed(2)}%</span>`,
+     `<span class="${resClass}">${res>=0?'+':''}${res.toFixed(2)}pp</span>`,
+    ].forEach((v,j)=>{const td=document.createElement('td');td.className=j===0?'':'r';td.innerHTML=v;tr.appendChild(td);});
+    tbody.appendChild(tr);
+  });
+  tb.appendChild(tbody);
+})();
+
+// ── Curvas por segmento ──
+(function(){
+  const datasets = D.segmentos.map(seg=>{
+    const col=SEG_COLORS[seg.nombre]||'#888';
+    const cs=D.curvas_seg[seg.nombre];
+    return {
+      label: seg.nombre,
+      data: cs.x.map((x,i)=>{return {x,y:cs.p[i]}}) ,
+      borderColor: col, backgroundColor: col+'18',
+      borderWidth:2.5, pointRadius:0, tension:0, fill:false,
+    };
+  });
+  // Agregar puntos observados de cada segmento
+  D.segmentos.forEach(seg=>{
+    const col=SEG_COLORS[seg.nombre]||'#888';
+    const ps=D.pred_seg[seg.nombre];
+    if(ps) datasets.push({
+      label: seg.nombre+' (obs)',
+      data: ps.n_bancos.map((x,i)=>{return {x,y:ps.p_obs[i]}}) ,
+      borderColor: col, backgroundColor: col,
+      borderWidth:0, pointRadius:5, pointStyle:'circle', showLine:false,
+    });
+  });
+
+  new Chart(document.getElementById('cSegCurvas'),{
+    type:'line',
+    data:{datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{labels:{color:'#4a5568',font:{size:11},filter:item=>!item.text.includes('(obs)')}},
+        tooltip:{backgroundColor:'#0f2744',callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(2)}%`}}
+      },
+      scales:{
+        x:{type:'linear',ticks:{color:ac,stepSize:1},grid:{color:gc},
+            title:{display:true,text:'Cantidad de bancos',color:ac,font:{size:11}},min:1,max:9},
+        y:{ticks:{color:ac,callback:v=>v+'%'},grid:{color:gc},
+            title:{display:true,text:'P(mora) %',color:ac,font:{size:11}},min:0,max:100}
+      }
+    }
+  });
+})();
+
+// ── Param cards ──
+D.segmentos.forEach((seg,i)=>{
+  const col=SEG_COLORS[seg.nombre]||'#888';
+  const el=document.getElementById(`pc-${i}`);
+  if(!el) return;
+  const sig = seg.p_valor < 0.05;
+  el.innerHTML=`
+    <div class="param-seg" style="color:${col};border-color:${col}">${seg.nombre}</div>
+    <div class="param-row"><span class="param-lbl">Clientes</span><span class="param-val">${seg.clientes.toLocaleString()}</span></div>
+    <div class="param-row"><span class="param-lbl">β₁ (coef.)</span><span class="param-val">${seg.beta1.toFixed(4)}</span></div>
+    <div class="param-row"><span class="param-lbl">Odds Ratio</span><span class="param-val">${seg.odds_ratio.toFixed(4)}</span></div>
+    <div class="param-row"><span class="param-lbl">IC 95%</span><span class="param-val">[${seg.or_ic_low.toFixed(3)}, ${seg.or_ic_hi.toFixed(3)}]</span></div>
+    <div class="param-row"><span class="param-lbl">p-valor</span><span class="param-val ${sig?'res-pos':'res-neg'}">${seg.p_valor < 0.001 ? '< 0.001' : seg.p_valor.toFixed(4)}</span></div>
+    <div class="param-row"><span class="param-lbl">Pseudo R²</span><span class="param-val">${seg.pseudo_r2.toFixed(4)}</span></div>
+    <div class="param-row"><span class="param-lbl">Significativo</span><span class="sig-badge ${sig?'sig-yes':'sig-no'}">${sig?'SÍ':'NO'}</span></div>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">P(mora) predicha</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        <div style="font-size:11px;color:var(--text-mid)">1 banco: <strong style="font-family:var(--mono)">${seg.p_mora_1b}%</strong></div>
+        <div style="font-size:11px;color:var(--text-mid)">3 bancos: <strong style="font-family:var(--mono)">${seg.p_mora_3b}%</strong></div>
+        <div style="font-size:11px;color:var(--text-mid)">5 bancos: <strong style="font-family:var(--mono)">${seg.p_mora_5b}%</strong></div>
+        <div style="font-size:11px;color:var(--text-mid)">9 bancos: <strong style="font-family:var(--mono)">${seg.p_mora_9b}%</strong></div>
+      </div>
+    </div>`;
+});
+
+// ── Tabs predicciones por segmento ──
+let activeSeg = D.segmentos[0]?.nombre;
+const tabsContainer = document.getElementById('segTabsContainer');
+D.segmentos.forEach((seg,i)=>{
+  const btn=document.createElement('button');
+  btn.className='seg-tab'+(i===0?' active':'');
+  btn.textContent=seg.nombre.split(' ')[0]+' '+seg.nombre.split(' ')[1];
+  btn.onclick=()=>{
+    activeSeg=seg.nombre;
+    document.querySelectorAll('.seg-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    buildPredSegTable(seg.nombre);
+  };
+  tabsContainer.appendChild(btn);
+});
+
+function buildPredSegTable(segNombre){
+  const ps=D.pred_seg[segNombre];
+  if(!ps) return;
+  document.getElementById('predSegTitle').textContent=`Observado vs. Predicho — ${segNombre}`;
+  const tb=document.getElementById('tPredSeg');tb.innerHTML='';
+  const thead=document.createElement('thead'),tr0=document.createElement('tr');
+  [['Bancos',false],['Clientes',true],['Morosos',true],['P(mora) Observada',true],['P(mora) Predicha',true],['Residuo',true]]
+    .forEach(([l,r])=>{const th=document.createElement('th');th.textContent=l;if(r)th.className='r';tr0.appendChild(th);});
+  thead.appendChild(tr0);tb.appendChild(thead);
+  const tbody=document.createElement('tbody');
+  ps.n_bancos.forEach((x,i)=>{
+    const tr=document.createElement('tr');
+    const res=ps.residuo[i];
+    const resClass=res>=0?'res-pos':'res-neg';
+    [`<strong style="font-family:var(--mono)">${x===9?'9+':x}</strong>`,
+     ps.clientes[i].toLocaleString(),ps.morosos[i].toLocaleString(),
+     `<span style="font-family:var(--mono);font-weight:600">${ps.p_obs[i].toFixed(2)}%</span>`,
+     `<span style="font-family:var(--mono);font-weight:600;color:var(--blue)">${ps.p_pred[i].toFixed(2)}%</span>`,
+     `<span class="${resClass}">${res>=0?'+':''}${res.toFixed(2)}pp</span>`,
+    ].forEach((v,j)=>{const td=document.createElement('td');td.className=j===0?'':'r';td.innerHTML=v;tr.appendChild(td);});
+    tbody.appendChild(tr);
+  });
+  tb.appendChild(tbody);
+}
+
+if(activeSeg) buildPredSegTable(activeSeg);
+
+function mainSw(n,el){
+  document.querySelectorAll('.main-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.main-tbc').forEach(t=>t.classList.remove('active'));
+  document.getElementById('main-'+n).classList.add('active');el.classList.add('active');
+}
+</script>
+</body>
+</html>

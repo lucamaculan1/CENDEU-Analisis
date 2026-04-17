@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor de Riesgo Crediticio — Sistema Financiero Argentino</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2f5f9;--surface:#fff;--surface2:#f7f9fc;--border:#dde3ec;
+  --navy:#0f2744;--blue:#1a56a0;--blue-lt:#e8f0fb;
+  --red:#c0392b;--orange:#d35400;--green:#1a7a4a;--yellow:#b7770d;
+  --text:#1a2535;--text-mid:#4a5568;--text-muted:#8a9bb0;
+  --font:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh;}
+
+/* HERO */
+.hero{background:var(--navy);padding:72px 56px 64px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 70% 50%,rgba(26,86,160,0.25) 0%,transparent 60%),radial-gradient(ellipse at 20% 80%,rgba(26,122,74,0.1) 0%,transparent 50%);}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1a56a0,#2e86de,#54a0ff,#2e86de,#1a56a0);}
+.hero-inner{max-width:1200px;margin:0 auto;position:relative;z-index:1;}
+.hero-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#7fb3e8;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.hero-eyebrow::before{content:'';width:32px;height:1px;background:#7fb3e8;}
+.hero h1{font-size:42px;font-weight:700;color:#fff;line-height:1.15;margin-bottom:16px;max-width:700px;}
+.hero h1 span{color:#54a0ff;}
+.hero-sub{font-size:16px;color:#8aaccc;line-height:1.65;max-width:600px;margin-bottom:36px;}
+.hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 14px;font-size:12px;color:#8aaccc;font-family:var(--mono);}
+.hero-badge-dot{width:7px;height:7px;border-radius:50%;background:#54a0ff;flex-shrink:0;}
+.hero-badge-dot.gr{background:#27ae60;}
+.hero-badge-dot.or{background:#e67e22;}
+
+/* CONTAINER */
+.container{max-width:1200px;margin:0 auto;padding:56px 56px 80px;}
+.section-title{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:24px;display:flex;align-items:center;gap:12px;}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* BLOQUES */
+.blocks-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-bottom:56px;}
+.block-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;transition:all .2s;cursor:pointer;text-decoration:none;display:block;position:relative;overflow:hidden;}
+.block-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
+.block-card.b1::before{background:linear-gradient(90deg,#1a56a0,#2e86de);}
+.block-card.b1d::before{background:linear-gradient(90deg,#d35400,#e67e22);}
+.block-card.b2::before{background:linear-gradient(90deg,#1a7a4a,#27ae60);}
+.block-card.b3::before{background:linear-gradient(90deg,#6c3483,#9b59b6);}
+.block-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.1);transform:translateY(-2px);border-color:#c5d9f5;}
+.block-num{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
+.block-card.b1 .block-num{color:var(--blue);}
+.block-card.b1d .block-num{color:var(--orange);}
+.block-card.b2 .block-num{color:var(--green);}
+.block-card.b3 .block-num{color:#6c3483;}
+.block-title{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:8px;line-height:1.2;}
+.block-sub{font-size:13px;color:var(--text-mid);line-height:1.6;margin-bottom:20px;}
+.block-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;}
+.tag{display:inline-flex;align-items:center;padding:3px 10px;border-radius:5px;font-size:11px;font-weight:600;background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+.block-footer{display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:1px solid var(--border);}
+.block-kpis{display:flex;gap:20px;}
+.block-kpi-val{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--text);}
+.block-kpi-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;}
+.block-arrow{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s;flex-shrink:0;}
+.block-card.b1 .block-arrow{background:var(--blue-lt);color:var(--blue);}
+.block-card.b1d .block-arrow{background:#fef3ec;color:var(--orange);}
+.block-card.b2 .block-arrow{background:#eaf5ef;color:var(--green);}
+.block-card.b3 .block-arrow{background:#f3e8ff;color:#6c3483;}
+.block-card:hover .block-arrow{transform:translateX(4px);}
+
+/* METODOLOGÍA */
+.metodologia{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:36px;margin-bottom:48px;}
+.met-header{display:flex;align-items:center;gap:12px;margin-bottom:28px;padding-bottom:20px;border-bottom:2px solid var(--border);}
+.met-header-icon{font-size:20px;}
+.met-header-title{font-size:16px;font-weight:700;color:var(--navy);}
+.met-header-sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.met-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0;}
+.met-item{padding:20px 24px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);}
+.met-item:nth-child(2n){border-right:none;}
+.met-item:nth-last-child(-n+2){border-bottom:none;}
+.met-item-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.met-item-icon{font-size:14px;}
+.met-item-title{font-size:12px;font-weight:700;color:var(--navy);}
+.met-item-text{font-size:12px;color:var(--text-mid);line-height:1.65;}
+.met-item-text strong{color:var(--text);}
+.met-nota{background:var(--surface2);border-radius:0 0 12px 12px;padding:16px 24px;margin:-1px -1px -1px -1px;border-top:1px solid var(--border);}
+.met-nota-text{font-size:11px;color:var(--text-muted);line-height:1.6;font-family:var(--mono);}
+
+/* FOOTER */
+.footer{background:var(--navy);padding:28px 56px;}
+.footer-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.footer-title{font-size:13px;color:#7fb3e8;}
+.footer-sub{font-size:11px;color:#4a6580;}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Monitor de Riesgo Crediticio</div>
+    <h1>Sistema Financiero<br><span>Argentino</span></h1>
+    <p class="hero-sub">Análisis integral de la calidad de cartera crediticia del sistema financiero argentino. Evolución de la mora, comportamiento del cliente, contagio entre bancos y riesgo sectorial. Período feb-2024 → feb-2026.</p>
+    <div class="hero-meta">
+      <div class="hero-badge"><div class="hero-badge-dot"></div>Fuente: CENDEU / BCRA</div>
+      <div class="hero-badge"><div class="hero-badge-dot gr"></div>feb-2024 → feb-2026 · 25 períodos</div>
+      <div class="hero-badge"><div class="hero-badge-dot or"></div>581K clientes · 522 entidades · 22 sectores</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENIDO -->
+<div class="container">
+
+  <div class="section-title">Bloques de análisis</div>
+
+  <div class="blocks-grid">
+
+    <a href="bloque1_completo.html" class="block-card b1">
+      <div class="block-num">Bloque 1</div>
+      <div class="block-title">Fotografía del Sistema Financiero</div>
+      <div class="block-sub">Evolución mensual de la mora del sistema, apertura por situación crediticia (sit 1-5), ranking de bancos con slider temporal y evolución individual por entidad.</div>
+      <div class="block-tags">
+        <span class="tag">Evolución sistema</span>
+        <span class="tag">Por situación</span>
+        <span class="tag">Ranking mensual</span>
+        <span class="tag">Por banco</span>
+      </div>
+      <div class="block-footer">
+        <div class="block-kpis">
+          <div class="block-kpi">
+            <div class="block-kpi-val">100</div>
+            <div class="block-kpi-lbl">entidades analizadas</div>
+          </div>
+          <div class="block-kpi">
+            <div class="block-kpi-val">25</div>
+            <div class="block-kpi-lbl">períodos mensuales</div>
+          </div>
+        </div>
+        <div class="block-arrow">→</div>
+      </div>
+    </a>
+
+    <a href="bloque1_deltas.html" class="block-card b1d">
+      <div class="block-num">Bloque 1 · Suplemento</div>
+      <div class="block-title">Deltas de Mora 2024 → 2025</div>
+      <div class="block-sub">¿Qué bancos se deterioraron más? Ranking de deterioro interanual, mapa de posición mora 2024 vs 2025, y evolución comparativa de los grandes bancos del sistema.</div>
+      <div class="block-tags">
+        <span class="tag">Ranking deterioro</span>
+        <span class="tag">Scatter 24 vs 25</span>
+        <span class="tag">Comparativa</span>
+      </div>
+      <div class="block-footer">
+        <div class="block-kpis">
+          <div class="block-kpi">
+            <div class="block-kpi-val">92</div>
+            <div class="block-kpi-lbl">bancos con delta</div>
+          </div>
+          <div class="block-kpi">
+            <div class="block-kpi-val">72</div>
+            <div class="block-kpi-lbl">bancos empeoraron</div>
+          </div>
+        </div>
+        <div class="block-arrow">→</div>
+      </div>
+    </a>
+
+    <a href="bloque2.html" class="block-card b2">
+      <div class="block-num">Bloque 2</div>
+      <div class="block-title">Comportamiento del Cliente en el Sistema</div>
+      <div class="block-sub">Distribución de clientes por cantidad de bancos operados, probabilidad de mora, análisis de contagio entre entidades con gap temporal, y tasa de origen normalizada por banco.</div>
+      <div class="block-tags">
+        <span class="tag">Distribución bancos</span>
+        <span class="tag">Probabilidad mora</span>
+        <span class="tag">Contagio sistémico</span>
+        <span class="tag">Gap temporal</span>
+      </div>
+      <div class="block-footer">
+        <div class="block-kpis">
+          <div class="block-kpi">
+            <div class="block-kpi-val">581K</div>
+            <div class="block-kpi-lbl">clientes únicos</div>
+          </div>
+          <div class="block-kpi">
+            <div class="block-kpi-val">4 meses</div>
+            <div class="block-kpi-lbl">mediana contagio</div>
+          </div>
+        </div>
+        <div class="block-arrow">→</div>
+      </div>
+    </a>
+
+    <a href="bloque3.html" class="block-card b3">
+      <div class="block-num">Bloque 3</div>
+      <div class="block-title">Análisis Sectorial</div>
+      <div class="block-sub">Calidad de cartera por sector económico con apertura por situación crediticia. Evolución, ranking con slider temporal, deltas 2024→2025, concentración bancaria y comparativa entre sectores.</div>
+      <div class="block-tags">
+        <span class="tag">22 sectores</span>
+        <span class="tag">51 subsectores</span>
+        <span class="tag">Por banco</span>
+        <span class="tag">Por situación</span>
+      </div>
+      <div class="block-footer">
+        <div class="block-kpis">
+          <div class="block-kpi">
+            <div class="block-kpi-val">433</div>
+            <div class="block-kpi-lbl">entidades</div>
+          </div>
+          <div class="block-kpi">
+            <div class="block-kpi-val">51</div>
+            <div class="block-kpi-lbl">subsectores</div>
+          </div>
+        </div>
+        <div class="block-arrow">→</div>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="section-title">Notas metodológicas</div>
+
+  <div class="metodologia">
+    <div class="met-header">
+      <div class="met-header-icon">📋</div>
+      <div>
+        <div class="met-header-title">Metodología y criterios de análisis</div>
+        <div class="met-header-sub">Decisiones metodológicas que aplican a todos los bloques</div>
+      </div>
+    </div>
+    <div class="met-grid">
+      <div class="met-item">
+        <div class="met-item-header"><div class="met-item-icon">🗄️</div><div class="met-item-title">Fuente de datos</div></div>
+        <div class="met-item-text">Central de Deudores del BCRA (<strong>CENDEU</strong>), tabla <code>bcra_deudores</code>. Universo: empresas (CUIT 30) y personas físicas responsables inscriptas (CUIT 20 con actividad <code>AC</code> o <code>EX</code> en AFIP). La base comprende <strong>25.023.895 registros</strong> mensuales para el período analizado.</div>
+      </div>
+      <div class="met-item">
+        <div class="met-item-header"><div class="met-item-icon">📅</div><div class="met-item-title">Período y campo temporal</div></div>
+        <div class="met-item-text">Se utiliza el campo <strong>periodo_informado</strong> (no el campo <code>periodo</code>) para evitar el desfasaje de 2 meses propio del proceso de consolidación del BCRA. El período abarca <strong>feb-2024 a feb-2026</strong>, equivalente a 25 meses consecutivos.</div>
+      </div>
+      <div class="met-item">
+        <div class="met-item-header"><div class="met-item-icon">🏦</div><div class="met-item-title">Consolidación de entidades</div></div>
+        <div class="met-item-text"><strong>30 entidades</strong> con múltiples códigos BCRA fueron consolidadas bajo un único código principal mediante un glosario de mapeo (<code>Glosario_Bancos_Mapeo.csv</code>). Ejemplos: Galicia (cód. 7 y 36517), MercadoLibre (36502, 55311 y 72634). Sin esta corrección los análisis de contagio y concentración quedarían sesgados.</div>
+      </div>
+      <div class="met-item">
+        <div class="met-item-header"><div class="met-item-icon">📊</div><div class="met-item-title">Definición de mora</div></div>
+        <div class="met-item-text">Se considera en mora toda deuda con <strong>situación ≥ 2</strong> según la clasificación regulatoria del BCRA (Comunicación A 2216 y complementarias). La clasificación es uniforme para todas las entidades — no existe clasificación propia de cada banco. Las situaciones son: <strong>1 Normal · 2 Seguimiento especial · 3 Con problemas · 4 Alto riesgo · 5 Irrecuperable · 6 Quiebra.</strong></div>
+      </div>
+      <div class="met-item">
+        <div class="met-item-header"><div class="met-item-icon">🗂️</div><div class="met-item-title">Segmentación de clientes</div></div>
+        <div class="met-item-text">El segmento de cada cliente se fija en <strong>feb-2024</strong> (primer período disponible) según su deuda promedio mensual total con el sistema, expresada en miles de pesos: <strong>Micro</strong> &lt; $1M · <strong>Pequeño</strong> $1M-$10M · <strong>Mediano</strong> $10M-$100M · <strong>Grande</strong> &gt; $100M (incluye Corporativo). Al fijar el segmento en el período inicial se evita que la inflación nominal desplace artificialmente a los clientes entre segmentos.</div>
+      </div>
+      <div class="met-item">
+        <div class="met-item-header"><div class="met-item-icon">🔗</div><div class="met-item-title">Criterio de relación bancaria</div></div>
+        <div class="met-item-text">Para el Bloque 2 (análisis de contagio y distribución), se considera que un cliente <strong>"opera con un banco"</strong> si tuvo deuda registrada con esa entidad en al menos <strong>6 de los 25 períodos</strong> analizados. Este criterio estricto evita contabilizar operaciones puntuales o episódicas como relaciones bancarias genuinas. Se incluye una versión comparativa con criterio ≥2 períodos.</div>
+      </div>
+      <div class="met-item">
+        <div class="met-item-header"><div class="met-item-icon">⚠️</div><div class="met-item-title">Tasa de origen normalizada</div></div>
+        <div class="met-item-text">Para el análisis de contagio se calcula la <strong>tasa de origen normalizada</strong> de cada banco como: veces que el banco fue el primero en registrar la mora del cliente / total de clientes morosos del banco. Esta métrica elimina el sesgo de tamaño y permite comparar bancos con distinta masa de clientes. Solo se muestran entidades con ≥500 morosos para garantizar significancia estadística.</div>
+      </div>
+      <div class="met-item">
+        <div class="met-item-header"><div class="met-item-icon">💱</div><div class="met-item-title">Montos y escala</div></div>
+        <div class="met-item-text">Los montos en la base CENDEU están expresados en <strong>miles de pesos corrientes</strong>. En el Bloque 1 y Bloque 2 se muestran en miles de $ tal como vienen en la fuente. En el Bloque 3 (análisis sectorial) los montos se expresan en <strong>miles de millones de pesos ($B)</strong> para mejorar la legibilidad. No se aplica deflactor — todos los valores son nominales.</div>
+      </div>
+    </div>
+    <div class="met-nota">
+      <div class="met-nota-text">Nota: Los análisis contenidos en este monitor son de uso interno para la gestión del riesgo de crédito. La información proviene de fuentes públicas del BCRA y no incluye datos individuales identificables. Los resultados deben interpretarse en el contexto del período analizado y las decisiones metodológicas descritas.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div class="footer-inner">
+    <div class="footer-title">Monitor de Riesgo Crediticio — Sistema Financiero Argentino</div>
+    <div class="footer-sub">Datos: CENDEU / BCRA · Período: feb-2024 → feb-2026 · Uso interno — análisis de riesgo crediticio</div>
+  </div>
+</div>
+
+</body>
+</html>

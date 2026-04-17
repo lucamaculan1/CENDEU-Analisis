@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloque 2 — Punto 3: Contagio entre Bancos</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f2f5f9;--surface:#fff;--surface2:#f7f9fc;--border:#dde3ec;
+  --navy:#0f2744;--blue:#1a56a0;--blue-lt:#e8f0fb;
+  --red:#c0392b;--red-lt:#fdf0ee;
+  --orange:#d35400;--orange-lt:#fef3ec;
+  --green:#1a7a4a;--green-lt:#eaf5ef;
+  --yellow:#b7770d;--yellow-lt:#fef9ec;
+  --text:#1a2535;--text-mid:#4a5568;--text-muted:#8a9bb0;
+  --font:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;}
+.nav{background:#08192e;padding:0 56px;display:flex;align-items:center;gap:4px;border-bottom:1px solid #1a2d47;}
+.nav-btn{padding:14px 20px;font-size:12px;font-weight:600;color:#5a7c99;border:none;background:transparent;cursor:pointer;font-family:var(--font);border-bottom:3px solid transparent;transition:all .15s;text-decoration:none;display:inline-block;}
+.nav-btn:hover{color:#fff;} .nav-btn.active{color:#fff;border-bottom-color:var(--blue);}
+.nav-sep{color:#1a2d47;padding:0 4px;font-size:18px;}
+.header{background:var(--navy);padding:36px 56px 32px;position:relative;overflow:hidden;}
+.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1a56a0,#2e86de,#54a0ff);}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#7fb3e8;margin-bottom:10px;}
+.header h1{font-size:26px;font-weight:700;color:#fff;line-height:1.25;margin-bottom:7px;}
+.header-sub{font-size:12px;color:#8aaccc;}
+.header-meta{position:absolute;top:36px;right:56px;text-align:right;}
+.period{font-size:20px;font-weight:700;color:#fff;font-family:var(--mono);}
+.period-label{font-size:10px;color:#7fb3e8;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+.source{font-size:11px;color:#5a7c99;margin-top:5px;}
+.container{max-width:1380px;margin:0 auto;padding:32px 56px 72px;}
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:32px;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--border);border-radius:10px;padding:18px 16px 16px;}
+.kpi.bl{border-top-color:var(--blue);} .kpi.re{border-top-color:var(--red);}
+.kpi.or{border-top-color:var(--orange);} .kpi.gr{border-top-color:var(--green);}
+.kpi.ye{border-top-color:var(--yellow);}
+.kpi-lbl{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:7px;}
+.kpi-val{font-size:24px;font-weight:700;color:var(--text);font-family:var(--mono);line-height:1;}
+.kpi-sub{font-size:11px;color:var(--text-muted);margin-top:5px;}
+.sec-hdr{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:11px;border-bottom:2px solid var(--border);}
+.sec-num{width:26px;height:26px;background:var(--blue);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.sec-title{font-size:15px;font-weight:700;color:var(--navy);}
+.sec-sub{font-size:11px;color:var(--text-muted);margin-left:auto;}
+.section{margin-bottom:40px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px;}
+.card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.card-sub{font-size:11px;color:var(--text-muted);margin-bottom:16px;font-family:var(--mono);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.mt{margin-top:14px;}
+.cw{position:relative;}
+.h260{height:260px;} .h300{height:300px;} .h360{height:360px;} .h400{height:400px;}
+.highlight-box{background:linear-gradient(135deg,#e8f0fb,#f2f5f9);border:1px solid #c5d9f5;border-left:4px solid var(--blue);border-radius:10px;padding:20px 24px;margin-bottom:20px;}
+.highlight-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+.highlight-text{font-size:13px;color:var(--text-mid);line-height:1.6;}
+.highlight-text strong{color:var(--navy);}
+table{width:100%;border-collapse:collapse;}
+thead th{background:var(--surface2);color:var(--text-muted);font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);white-space:nowrap;font-family:var(--mono);}
+thead th.r{text-align:right;}
+tbody tr{border-bottom:1px solid var(--border);transition:background .12s;}
+tbody tr:hover{background:var(--surface2);}
+tbody td{padding:9px 13px;font-size:12px;color:var(--text);}
+tbody td.r{text-align:right;font-family:var(--mono);font-size:12px;}
+tbody td.nm{font-weight:500;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+tbody tr:last-child{border-bottom:none;}
+.alerta-box{background:#fff8e1;border:1px solid #ffe082;border-left:4px solid #f9a825;border-radius:8px;padding:14px 18px;margin-bottom:14px;}
+.alerta-title{font-size:12px;font-weight:700;color:#6d4c00;margin-bottom:4px;}
+.alerta-text{font-size:12px;color:#5d4037;line-height:1.5;}
+.findings{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.finding{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:8px;padding:16px;}
+.finding.wa{border-left-color:var(--orange);} .finding.al{border-left-color:var(--red);} .finding.ok{border-left-color:var(--green);}
+.f-icon{font-size:17px;margin-bottom:7px;} .f-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:5px;}
+.f-text{font-size:12px;color:var(--text-mid);line-height:1.6;} .f-text strong{color:var(--text);}
+.main-tabs{display:flex;gap:0;margin-bottom:24px;border-bottom:2px solid var(--border);overflow-x:auto;}
+.main-tab{padding:10px 20px;font-size:13px;font-weight:600;border:none;background:transparent;color:var(--text-muted);cursor:pointer;font-family:var(--font);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap;}
+.main-tab.active{color:var(--navy);border-bottom-color:var(--blue);}
+.main-tbc{display:none;} .main-tbc.active{display:block;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a href="bloque1_completo.html" class="nav-btn">Bloque 1 — Fotografía del Sistema</a>
+  <span class="nav-sep">›</span>
+  <a href="bloque2.html" class="nav-btn active">Bloque 2 — Comportamiento del Cliente</a>
+</nav>
+<div class="header">
+  <div class="eyebrow">Bloque 2 — Punto 3: Contagio entre Bancos</div>
+  <h1>Propagación de la Mora en el Sistema<br>¿Dónde aparece primero y cómo se propaga?</h1>
+  <div class="header-sub">43.845 clientes con mora en 2+ bancos · 80.981 eventos de contagio · feb-2024 → feb-2026 · Fuente: CENDEU / BCRA</div>
+  <div class="header-meta">
+    <div class="period-label">Universo analizado</div>
+    <div class="period">43.845 CUITs</div>
+    <div class="source">mora en 2 o más bancos</div>
+  </div>
+</div>
+<div class="container">
+
+  <div class="alerta-box">
+    <div class="alerta-title">⏱️ Ventana de alerta temprana</div>
+    <div class="alerta-text">Si un cliente mora en un banco, tenés <strong>3 meses</strong> para actuar antes de que el 44% del contagio al resto del sistema ya haya ocurrido. A los 6 meses, el 60% del contagio está consumado.</div>
+  </div>
+
+  <div class="kpi-strip">
+    <div class="kpi bl"><div class="kpi-lbl">CUITs con mora 2+ bancos</div><div class="kpi-val">43.845</div><div class="kpi-sub">7.6% del universo total</div></div>
+    <div class="kpi re"><div class="kpi-lbl">Mora mismo mes</div><div class="kpi-val">16.7%</div><div class="kpi-sub">contagio simultáneo</div></div>
+    <div class="kpi or"><div class="kpi-lbl">Contagio ≤ 3 meses</div><div class="kpi-val">44.2%</div><div class="kpi-sub">del total de eventos</div></div>
+    <div class="kpi or"><div class="kpi-lbl">Contagio ≤ 6 meses</div><div class="kpi-val">60.5%</div><div class="kpi-sub">del total de eventos</div></div>
+    <div class="kpi re"><div class="kpi-lbl">Banco origen #1</div><div class="kpi-val">Galicia</div><div class="kpi-sub">14.1% de los eventos origen</div></div>
+  </div>
+
+  <div class="main-tabs">
+    <button class="main-tab active" onclick="mainSw('velocidad',this)">Velocidad de Contagio</button>
+    <button class="main-tab" onclick="mainSw('bancos',this)">Bancos Origen y Destino</button>
+    <button class="main-tab" onclick="mainSw('pares',this)">Pares de Contagio</button>
+    <button class="main-tab" onclick="mainSw('hallazgos',this)">Hallazgos</button>
+  </div>
+
+  <!-- TAB 1: VELOCIDAD -->
+  <div class="main-tbc active" id="main-velocidad">
+    <div class="section">
+      <div class="sec-hdr"><div class="sec-num">1</div><div class="sec-title">Velocidad de Propagación de la Mora</div><div class="sec-sub">Distribución de gaps en meses</div></div>
+      <div class="highlight-box">
+        <div class="highlight-title">🔑 La mora se propaga muy rápido</div>
+        <div class="highlight-text">El <strong>16.7% de los contagios ocurre en el mismo mes</strong> — el cliente ya está en mora en varios bancos simultáneamente. El <strong>44.2% se propaga en los primeros 3 meses</strong> y el <strong>60.5% en 6 meses</strong>. Esto define una ventana de acción muy corta para la gestión de alertas tempranas.</div>
+      </div>
+      <div class="g2" style="margin-bottom:14px">
+        <div class="card">
+          <div class="card-title">Distribución de Gaps — ¿Cuántos meses tarda el contagio?</div>
+          <div class="card-sub">Frecuencia de eventos por meses de distancia entre primera mora en banco A y banco B</div>
+          <div class="cw h300"><canvas id="cGapDist"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">% Acumulado de Contagio por Meses</div>
+          <div class="card-sub">¿Qué % del contagio total ya ocurrió a los N meses?</div>
+          <div class="cw h300"><canvas id="cGapAcum"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-hdr"><div class="sec-num">2</div><div class="sec-title">Gap Promedio por Banco Origen</div><div class="sec-sub">Cuándo mora en este banco primero, ¿cuánto tarda en propagarse?</div></div>
+      <div class="card">
+        <div class="card-title">Gap Promedio y Mediana por Banco Origen (meses)</div>
+        <div class="card-sub">Los bancos con gap corto son señales más urgentes — el contagio es más veloz</div>
+        <div class="cw h360"><canvas id="cGapBanco"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: BANCOS -->
+  <div class="main-tbc" id="main-bancos">
+    <div class="section">
+      <div class="sec-hdr"><div class="sec-num">3</div><div class="sec-title">Bancos Origen y Destino</div><div class="sec-sub">¿Dónde aparece primero la mora y dónde llega después?</div></div>
+      <div class="g2" style="margin-bottom:14px">
+        <div class="card">
+          <div class="card-title">Top 15 — Bancos Origen (mora aparece primero acá)</div>
+          <div class="card-sub">% de veces que este banco registra la primera mora del cliente</div>
+          <div class="cw h400"><canvas id="cOrigen"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Top 15 — Bancos Destino (más contagiados)</div>
+          <div class="card-sub">Cantidad de veces que este banco recibe la mora después de otro</div>
+          <div class="cw h400"><canvas id="cDestino"></canvas></div>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">Tabla — Bancos Origen</div>
+          <div style="overflow-x:auto;margin-top:8px"><table id="tOrigen"></table></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Tabla — Bancos Destino</div>
+          <div style="overflow-x:auto;margin-top:8px"><table id="tDestino"></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: PARES -->
+  <div class="main-tbc" id="main-pares">
+    <div class="section">
+      <div class="sec-hdr"><div class="sec-num">4</div><div class="sec-title">Pares de Contagio más Frecuentes</div><div class="sec-sub">Banco A mora primero → Banco B mora después</div></div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">Top 15 Pares — Banco Origen → Banco Destino</div>
+        <div class="card-sub">Cantidad de clientes que moraron en A antes que en B · gap promedio en meses</div>
+        <div class="cw h400"><canvas id="cPares"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Tabla — Top Pares de Contagio</div>
+        <div style="overflow-x:auto;margin-top:8px"><table id="tPares"></table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: HALLAZGOS -->
+  <div class="main-tbc" id="main-hallazgos">
+    <div class="section">
+      <div class="sec-hdr"><div class="sec-num">5</div><div class="sec-title">Hallazgos Principales</div></div>
+      <div class="findings">
+        <div class="finding al"><div class="f-icon">⚡</div><div class="f-title">Ventana de 3 meses</div><div class="f-text">El <strong>44.2% del contagio</strong> ocurre en los primeros 3 meses. Si detectás mora en un banco hoy, tenés 3 meses para revisar la exposición en el resto del sistema antes de que sea tarde.</div></div>
+        <div class="finding al"><div class="f-icon">🏦</div><div class="f-title">Galicia — origen más frecuente</div><div class="f-text">Aparece primero en el <strong>14.1%</strong> de todos los eventos. Gap mediana de 3 meses — el más corto entre los grandes. Cuando Galicia registra mora, el contagio al sistema es el más veloz.</div></div>
+        <div class="finding wa"><div class="f-icon">🎯</div><div class="f-title">Tarjeta Naranja — destino #1</div><div class="f-text">Es el banco más "contagiado" con <strong>8.202 eventos como destino</strong>. El cliente que mora en un banco tradicional tiene alta probabilidad de mora posterior en Naranja.</div></div>
+        <div class="finding ok"><div class="f-icon">📱</div><div class="f-title">MercadoLibre — contagio lento</div><div class="f-text">Gap promedio de <strong>8.9 meses</strong> — el más alto entre las entidades relevantes. Cuando ML es el origen, el sistema tarda más en contagiarse. Perfil de cartera distinto.</div></div>
+        <div class="finding al"><div class="f-icon">🔗</div><div class="f-title">Par más frecuente: Galicia → Santander</div><div class="f-text"><strong>1.360 clientes</strong> moraron en Galicia antes que en Santander, con gap de 5.5 meses. Este par se repite bidireccional — también Santander → Galicia con 750 eventos.</div></div>
+        <div class="finding ok"><div class="f-icon">💡</div><div class="f-title">Naranja Digital → Naranja S.A.</div><div class="f-text">554 eventos con gap de solo <strong>2.9 meses</strong> — el gap más corto entre pares relevantes. Sugiere que ambas entidades comparten clientes con perfil de riesgo muy similar.</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const D = {"origen": [{"denominacion": "BANCO DE GALICIA Y BUENOS AIRES S.A.U.", "veces_primero": 6194, "pct_total": 14.13}, {"denominacion": "BANCO DE LA NACION ARGENTINA", "veces_primero": 3995, "pct_total": 9.11}, {"denominacion": "BANCO SANTANDER RIO S.A.", "veces_primero": 3891, "pct_total": 8.87}, {"denominacion": "BBVA BANCO FRANCES S.A.", "veces_primero": 3545, "pct_total": 8.09}, {"denominacion": "TARJETA NARANJA S.A.", "veces_primero": 2816, "pct_total": 6.42}, {"denominacion": "BANCO DE LA PROVINCIA DE BUENOS AIRES", "veces_primero": 2264, "pct_total": 5.16}, {"denominacion": "INDUSTRIAL AND COMMERCIAL BANK OF CHIN…", "veces_primero": 1852, "pct_total": 4.22}, {"denominacion": "BANCO MACRO S.A.", "veces_primero": 1729, "pct_total": 3.94}, {"denominacion": "CENCOSUD S.A.", "veces_primero": 1615, "pct_total": 3.68}, {"denominacion": "MERCADOLIBRE S.R.L.", "veces_primero": 1276, "pct_total": 2.91}, {"denominacion": "BANCO SUPERVIELLE S.A.", "veces_primero": 1018, "pct_total": 2.32}, {"denominacion": "BANCO PATAGONIA S.A.", "veces_primero": 896, "pct_total": 2.04}, {"denominacion": "BANCO HIPOTECARIO S.A.", "veces_primero": 780, "pct_total": 1.78}, {"denominacion": "HSBC BANK ARGENTINA S.A.", "veces_primero": 753, "pct_total": 1.72}, {"denominacion": "NARANJA DIGITAL COMPAÑÍA FINANCIERA S.…", "veces_primero": 718, "pct_total": 1.64}], "destino": [{"denominacion": "TARJETA NARANJA S.A.", "veces_contagiado": 8202}, {"denominacion": "BANCO DE GALICIA Y BUENOS AIRES S.A.U.", "veces_contagiado": 7230}, {"denominacion": "BANCO SANTANDER RIO S.A.", "veces_contagiado": 7110}, {"denominacion": "BBVA BANCO FRANCES S.A.", "veces_contagiado": 5762}, {"denominacion": "BANCO DE LA NACION ARGENTINA", "veces_contagiado": 5051}, {"denominacion": "BANCO MACRO S.A.", "veces_contagiado": 4667}, {"denominacion": "CENCOSUD S.A.", "veces_contagiado": 3024}, {"denominacion": "BANCO DE LA PROVINCIA DE BUENOS AIRES", "veces_contagiado": 2887}, {"denominacion": "INDUSTRIAL AND COMMERCIAL BANK OF CHIN…", "veces_contagiado": 2759}, {"denominacion": "BANCO SUPERVIELLE S.A.", "veces_contagiado": 1820}, {"denominacion": "BANCO CREDICOOP COOPERATIVO LIMITADO", "veces_contagiado": 1796}, {"denominacion": "MERCADOLIBRE S.R.L.", "veces_contagiado": 1658}, {"denominacion": "BANCO PATAGONIA S.A.", "veces_contagiado": 1619}, {"denominacion": "NARANJA DIGITAL COMPAÑÍA FINANCIERA S.…", "veces_contagiado": 1537}, {"denominacion": "BANCO DE SERVICIOS FINANCIEROS S.A.", "veces_contagiado": 1410}], "gap_dist": [{"gap_meses": 0, "frecuencia": 13545, "pct": 16.73}, {"gap_meses": 1, "frecuencia": 9082, "pct": 11.21}, {"gap_meses": 2, "frecuencia": 6766, "pct": 8.36}, {"gap_meses": 3, "frecuencia": 6368, "pct": 7.86}, {"gap_meses": 4, "frecuencia": 5233, "pct": 6.46}, {"gap_meses": 5, "frecuencia": 4319, "pct": 5.33}, {"gap_meses": 6, "frecuencia": 3677, "pct": 4.54}, {"gap_meses": 7, "frecuencia": 3192, "pct": 3.94}, {"gap_meses": 8, "frecuencia": 2725, "pct": 3.36}, {"gap_meses": 9, "frecuencia": 2721, "pct": 3.36}, {"gap_meses": 10, "frecuencia": 2328, "pct": 2.87}, {"gap_meses": 11, "frecuencia": 2046, "pct": 2.53}, {"gap_meses": 12, "frecuencia": 1952, "pct": 2.41}, {"gap_meses": 13, "frecuencia": 1931, "pct": 2.38}, {"gap_meses": 14, "frecuencia": 1790, "pct": 2.21}, {"gap_meses": 15, "frecuencia": 1679, "pct": 2.07}, {"gap_meses": 16, "frecuencia": 1634, "pct": 2.02}, {"gap_meses": 17, "frecuencia": 1452, "pct": 1.79}, {"gap_meses": 18, "frecuencia": 1467, "pct": 1.81}, {"gap_meses": 19, "frecuencia": 1432, "pct": 1.77}, {"gap_meses": 20, "frecuencia": 1440, "pct": 1.78}, {"gap_meses": 21, "frecuencia": 1343, "pct": 1.66}, {"gap_meses": 22, "frecuencia": 1215, "pct": 1.5}, {"gap_meses": 23, "frecuencia": 955, "pct": 1.18}, {"gap_meses": 24, "frecuencia": 689, "pct": 0.85}], "gap_acum": [{"gap_meses": 0, "pct_acum": 16.7}, {"gap_meses": 1, "pct_acum": 27.9}, {"gap_meses": 2, "pct_acum": 36.3}, {"gap_meses": 3, "pct_acum": 44.2}, {"gap_meses": 4, "pct_acum": 50.6}, {"gap_meses": 5, "pct_acum": 56.0}, {"gap_meses": 6, "pct_acum": 60.5}, {"gap_meses": 7, "pct_acum": 64.4}, {"gap_meses": 8, "pct_acum": 67.8}, {"gap_meses": 9, "pct_acum": 71.2}, {"gap_meses": 10, "pct_acum": 74.0}, {"gap_meses": 11, "pct_acum": 76.6}, {"gap_meses": 12, "pct_acum": 79.0}, {"gap_meses": 13, "pct_acum": 81.4}, {"gap_meses": 14, "pct_acum": 83.6}, {"gap_meses": 15, "pct_acum": 85.6}, {"gap_meses": 16, "pct_acum": 87.7}, {"gap_meses": 17, "pct_acum": 89.5}, {"gap_meses": 18, "pct_acum": 91.3}, {"gap_meses": 19, "pct_acum": 93.0}, {"gap_meses": 20, "pct_acum": 94.8}, {"gap_meses": 21, "pct_acum": 96.5}, {"gap_meses": 22, "pct_acum": 98.0}, {"gap_meses": 23, "pct_acum": 99.1}, {"gap_meses": 24, "pct_acum": 100.0}], "gap_banco": [{"banco_origen_nom": "BANCO DE GALICIA Y BUENOS AIRES S.A.U.", "n_eventos": 12623, "gap_promedio": 5.0, "gap_mediana": 3.0}, {"banco_origen_nom": "BANCO DE LA NACION ARGENTINA", "n_eventos": 7962, "gap_promedio": 6.3, "gap_mediana": 4.0}, {"banco_origen_nom": "BANCO SANTANDER RIO S.A.", "n_eventos": 6611, "gap_promedio": 6.9, "gap_mediana": 5.0}, {"banco_origen_nom": "BBVA BANCO FRANCES S.A.", "n_eventos": 6572, "gap_promedio": 6.0, "gap_mediana": 4.0}, {"banco_origen_nom": "TARJETA NARANJA S.A.", "n_eventos": 4841, "gap_promedio": 7.8, "gap_mediana": 6.0}, {"banco_origen_nom": "BANCO DE LA PROVINCIA DE BUENOS AIRES", "n_eventos": 3751, "gap_promedio": 6.5, "gap_mediana": 4.0}, {"banco_origen_nom": "INDUSTRIAL AND COMMERCIAL BANK OF CHIN…", "n_eventos": 3679, "gap_promedio": 5.9, "gap_mediana": 4.0}, {"banco_origen_nom": "BANCO MACRO S.A.", "n_eventos": 2978, "gap_promedio": 6.5, "gap_mediana": 4.0}, {"banco_origen_nom": "CENCOSUD S.A.", "n_eventos": 2827, "gap_promedio": 8.0, "gap_mediana": 6.0}, {"banco_origen_nom": "BANCO SUPERVIELLE S.A.", "n_eventos": 2209, "gap_promedio": 6.5, "gap_mediana": 4.0}, {"banco_origen_nom": "MERCADOLIBRE S.R.L.", "n_eventos": 2144, "gap_promedio": 8.9, "gap_mediana": 8.0}, {"banco_origen_nom": "BANCO HIPOTECARIO S.A.", "n_eventos": 1596, "gap_promedio": 6.8, "gap_mediana": 4.0}, {"banco_origen_nom": "BANCO PATAGONIA S.A.", "n_eventos": 1553, "gap_promedio": 7.0, "gap_mediana": 5.0}, {"banco_origen_nom": "HSBC BANK ARGENTINA S.A.", "n_eventos": 1467, "gap_promedio": 7.8, "gap_mediana": 6.0}, {"banco_origen_nom": "NARANJA DIGITAL COMPAÑÍA FINANCIERA S.…", "n_eventos": 1461, "gap_promedio": 5.1, "gap_mediana": 3.0}], "pares": [{"banco_origen_nom": "BANCO DE GALICIA Y BUENOS AIRE…", "banco_destino_nom": "BANCO SANTANDER RIO S.A.", "n_eventos": 1360, "gap_prom": 5.5}, {"banco_origen_nom": "BANCO DE GALICIA Y BUENOS AIRE…", "banco_destino_nom": "BBVA BANCO FRANCES S.A.", "n_eventos": 1286, "gap_prom": 4.5}, {"banco_origen_nom": "BANCO DE GALICIA Y BUENOS AIRE…", "banco_destino_nom": "TARJETA NARANJA S.A.", "n_eventos": 1264, "gap_prom": 4.6}, {"banco_origen_nom": "BANCO DE GALICIA Y BUENOS AIRE…", "banco_destino_nom": "BANCO DE LA NACION ARGENTINA", "n_eventos": 870, "gap_prom": 5.3}, {"banco_origen_nom": "BANCO DE LA NACION ARGENTINA", "banco_destino_nom": "TARJETA NARANJA S.A.", "n_eventos": 793, "gap_prom": 6.2}, {"banco_origen_nom": "BBVA BANCO FRANCES S.A.", "banco_destino_nom": "BANCO SANTANDER RIO S.A.", "n_eventos": 782, "gap_prom": 6.1}, {"banco_origen_nom": "BANCO SANTANDER RIO S.A.", "banco_destino_nom": "BANCO DE GALICIA Y BUENOS AIRE…", "n_eventos": 750, "gap_prom": 7.7}, {"banco_origen_nom": "BANCO DE GALICIA Y BUENOS AIRE…", "banco_destino_nom": "BANCO MACRO S.A.", "n_eventos": 737, "gap_prom": 6.3}, {"banco_origen_nom": "BBVA BANCO FRANCES S.A.", "banco_destino_nom": "BANCO DE GALICIA Y BUENOS AIRE…", "n_eventos": 737, "gap_prom": 7.8}, {"banco_origen_nom": "BANCO DE LA NACION ARGENTINA", "banco_destino_nom": "BANCO SANTANDER RIO S.A.", "n_eventos": 729, "gap_prom": 6.8}, {"banco_origen_nom": "BANCO DE LA NACION ARGENTINA", "banco_destino_nom": "BANCO DE GALICIA Y BUENOS AIRE…", "n_eventos": 682, "gap_prom": 8.0}, {"banco_origen_nom": "BBVA BANCO FRANCES S.A.", "banco_destino_nom": "TARJETA NARANJA S.A.", "n_eventos": 647, "gap_prom": 6.2}, {"banco_origen_nom": "BANCO SANTANDER RIO S.A.", "banco_destino_nom": "TARJETA NARANJA S.A.", "n_eventos": 639, "gap_prom": 6.4}, {"banco_origen_nom": "BANCO DE GALICIA Y BUENOS AIRE…", "banco_destino_nom": "INDUSTRIAL AND COMMERCIAL BANK…", "n_eventos": 603, "gap_prom": 4.8}, {"banco_origen_nom": "BANCO DE LA NACION ARGENTINA", "banco_destino_nom": "BBVA BANCO FRANCES S.A.", "n_eventos": 563, "gap_prom": 6.0}], "stats": {"total_eventos": 80981, "cuits_multi": 43845, "pct_mismo_mes": 16.7, "pct_3meses": 44.2, "pct_6meses": 60.5}};
+Chart.defaults.font.family="'IBM Plex Sans',sans-serif";
+Chart.defaults.font.size=11;
+const gc='#e8ecf2', ac='#8a9bb0';
+
+// Gap distribución
+new Chart(document.getElementById('cGapDist'),{
+  type:'bar',
+  data:{
+    labels: D.gap_dist.map(d=>d.gap_meses+'m'),
+    datasets:[{
+      label:'Eventos',
+      data: D.gap_dist.map(d=>d.frecuencia),
+      backgroundColor: D.gap_dist.map(d=>
+        d.gap_meses===0?'rgba(192,57,43,0.8)':
+        d.gap_meses<=3?'rgba(211,84,0,0.7)':
+        d.gap_meses<=6?'rgba(183,119,13,0.6)':'rgba(26,86,160,0.4)'),
+      borderRadius:2,
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f2744',callbacks:{
+      label:c=>` ${c.parsed.y.toLocaleString()} eventos (${D.gap_dist[c.dataIndex].pct}%)`
+    }}},
+    scales:{
+      x:{ticks:{color:ac,font:{size:9}},grid:{color:gc}},
+      y:{ticks:{color:ac,callback:v=>v>=1000?(v/1000).toFixed(0)+'K':v},grid:{color:gc}}
+    }
+  }
+});
+
+// Gap acumulado
+new Chart(document.getElementById('cGapAcum'),{
+  type:'line',
+  data:{
+    labels: D.gap_acum.map(d=>d.gap_meses+'m'),
+    datasets:[{
+      label:'% acumulado',
+      data: D.gap_acum.map(d=>d.pct_acum),
+      borderColor:'#1a56a0',backgroundColor:'rgba(26,86,160,0.08)',
+      borderWidth:2.5,pointRadius:2,tension:0.3,fill:true,
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f2744',callbacks:{
+      label:c=>` ${c.parsed.y.toFixed(1)}% del contagio ya ocurrió`
+    }}},
+    scales:{
+      x:{ticks:{color:ac,font:{size:9}},grid:{color:gc}},
+      y:{ticks:{color:ac,callback:v=>v+'%'},grid:{color:gc},max:100}
+    }
+  }
+});
+
+// Gap por banco
+new Chart(document.getElementById('cGapBanco'),{
+  type:'bar',
+  data:{
+    labels: D.gap_banco.map(d=>d.banco_origen_nom.length>28?d.banco_origen_nom.slice(0,28)+'…':d.banco_origen_nom),
+    datasets:[
+      {label:'Gap promedio (meses)',data:D.gap_banco.map(d=>d.gap_promedio),backgroundColor:'rgba(26,86,160,0.6)',borderRadius:3},
+      {label:'Gap mediana (meses)', data:D.gap_banco.map(d=>d.gap_mediana), backgroundColor:'rgba(211,84,0,0.6)',borderRadius:3},
+    ]
+  },
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#4a5568',font:{size:11}}},tooltip:{backgroundColor:'#0f2744'}},
+    scales:{
+      x:{ticks:{color:ac,callback:v=>v+'m'},grid:{color:gc}},
+      y:{ticks:{color:'#4a5568',font:{size:10}},grid:{display:false}}
+    }
+  }
+});
+
+// Origen
+new Chart(document.getElementById('cOrigen'),{
+  type:'bar',
+  data:{
+    labels: D.origen.map(d=>d.denominacion.length>30?d.denominacion.slice(0,30)+'…':d.denominacion),
+    datasets:[{data:D.origen.map(d=>d.veces_primero),backgroundColor:'rgba(192,57,43,0.65)',borderRadius:3}]
+  },
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f2744',callbacks:{label:c=>` ${c.parsed.x.toLocaleString()} veces (${D.origen[c.dataIndex].pct_total}%)`}}},
+    scales:{x:{ticks:{color:ac},grid:{color:gc}},y:{ticks:{color:'#4a5568',font:{size:10}},grid:{display:false}}}
+  }
+});
+
+// Destino
+new Chart(document.getElementById('cDestino'),{
+  type:'bar',
+  data:{
+    labels: D.destino.map(d=>d.denominacion.length>30?d.denominacion.slice(0,30)+'…':d.denominacion),
+    datasets:[{data:D.destino.map(d=>d.veces_contagiado),backgroundColor:'rgba(26,86,160,0.6)',borderRadius:3}]
+  },
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f2744',callbacks:{label:c=>` ${c.parsed.x.toLocaleString()} veces`}}},
+    scales:{x:{ticks:{color:ac},grid:{color:gc}},y:{ticks:{color:'#4a5568',font:{size:10}},grid:{display:false}}}
+  }
+});
+
+// Pares
+new Chart(document.getElementById('cPares'),{
+  type:'bar',
+  data:{
+    labels: D.pares.map(d=>`${d.banco_origen_nom.slice(0,18)} → ${d.banco_destino_nom.slice(0,18)}`),
+    datasets:[{
+      label:'Eventos',data:D.pares.map(d=>d.n_eventos),
+      backgroundColor:'rgba(108,52,131,0.6)',borderRadius:3
+    }]
+  },
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f2744',callbacks:{
+      label:c=>` ${c.parsed.x.toLocaleString()} eventos · gap ${D.pares[c.dataIndex].gap_prom}m`
+    }}},
+    scales:{x:{ticks:{color:ac},grid:{color:gc}},y:{ticks:{color:'#4a5568',font:{size:9}},grid:{display:false}}}
+  }
+});
+
+// Tablas
+function buildTable(id, data, cols){
+  const tb=document.getElementById(id);
+  const thead=document.createElement('thead'),tr0=document.createElement('tr');
+  cols.forEach(([l,r])=>{const th=document.createElement('th');th.textContent=l;if(r)th.className='r';tr0.appendChild(th);});
+  thead.appendChild(tr0);tb.appendChild(thead);
+  const tbody=document.createElement('tbody');
+  data.forEach((row,i)=>{
+    const tr=document.createElement('tr');
+    const vals = cols.map(([l,r,fn])=>fn?fn(row,i):row[Object.keys(row)[cols.indexOf([l,r,fn])]]);
+    vals.forEach((v,j)=>{const td=document.createElement('td');td.className=j===0?'nm':'r';td.innerHTML=v;tr.appendChild(td);});
+    tbody.appendChild(tr);
+  });
+  tb.appendChild(tbody);
+}
+
+buildTable('tOrigen', D.origen, [
+  ['Entidad',false,r=>`<span style="font-weight:500">${r.denominacion}</span>`],
+  ['Veces origen',true,r=>r.veces_primero.toLocaleString()],
+  ['% total',true,r=>r.pct_total.toFixed(2)+'%'],
+]);
+buildTable('tDestino', D.destino, [
+  ['Entidad',false,r=>`<span style="font-weight:500">${r.denominacion}</span>`],
+  ['Veces destino',true,r=>r.veces_contagiado.toLocaleString()],
+]);
+buildTable('tPares', D.pares, [
+  ['Banco Origen',false,r=>`<span style="font-weight:500">${r.banco_origen_nom}</span>`],
+  ['Banco Destino',false,r=>r.banco_destino_nom],
+  ['Eventos',true,r=>r.n_eventos.toLocaleString()],
+  ['Gap promedio',true,r=>r.gap_prom.toFixed(1)+' m'],
+]);
+
+function mainSw(n,el){
+  document.querySelectorAll('.main-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.main-tbc').forEach(t=>t.classList.remove('active'));
+  document.getElementById('main-'+n).classList.add('active');el.classList.add('active');
+}
+</script>
+</body>
+</html>
